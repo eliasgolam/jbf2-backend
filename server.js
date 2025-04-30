@@ -9,7 +9,7 @@ const krankenkassenRoutes = require('./routes/krankenkassen');
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect('...your Mongo URI...')
+mongoose.connect('mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mongodb.net/?retryWrites=true&w=majority&appName=JBCluster')
 .then(() => console.log('✅ MongoDB verbunden!'))
 .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
