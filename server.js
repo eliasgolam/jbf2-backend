@@ -13,11 +13,16 @@ mongoose.connect('mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mon
 .then(() => console.log('✅ MongoDB verbunden!'))
 .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
-app.use(cors({
-  origin: 'https://jbf2-frontend.vercel.app', // exakte Vercel-URL deines Frontends
-  methods: ['GET', 'POST'],
+const corsOptions = {
+  origin: 'https://jbf2-frontend.vercel.app',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // <-- das ist der Trick!
+
 
 app.use(express.json());
 
