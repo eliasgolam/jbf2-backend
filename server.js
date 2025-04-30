@@ -19,19 +19,12 @@ const corsOptions = {
   credentials: true
 };
 
-// ✅ CORS korrekt aktivieren
 app.use(cors(corsOptions));
-
-// ✅ JSON Middleware danach
 app.use(express.json());
 
-// ✅ API-Routen aktivieren
 app.use('/api/user', userRoutes);
 app.use('/api/kunden', kundenRoutes);
 app.use('/api/krankenkassen', krankenkassenRoutes);
-
-// ✅ OPTIONS-Handler nur, wenn notwendig
-app.options('/api/*', cors(corsOptions)); // NICHT '*'
 
 app.get('/', (req, res) => {
   res.send('Backend läuft Patron!');
