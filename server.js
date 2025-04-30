@@ -13,7 +13,12 @@ mongoose.connect('mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mon
 .then(() => console.log('✅ MongoDB verbunden!'))
 .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://jbf2-frontend.vercel.app', // exakte Vercel-URL deines Frontends
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // ✅ API-Routen aktivieren
