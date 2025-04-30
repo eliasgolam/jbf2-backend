@@ -1,0 +1,43 @@
+const express = require('express');
+const router = express.Router();
+const Kunde = require('../models/Kunde');
+
+// Kunde erstellen (POST)
+router.post('/', async (req, res) => {
+  try {
+    const neuerKunde = new Kunde({
+      vorname: req.body.vorname,
+      nachname: req.body.nachname,
+      geburtsdatum: req.body.geburtsdatum,
+      adresse: req.body.adresse,
+      plz: req.body.plz,
+      ort: req.body.ort,
+      zivilstand: req.body.zivilstand,
+      raucher: req.body.raucher,
+      kinder: req.body.kinder,
+      beruf: req.body.beruf,
+      email: req.body.email,
+      telefonnummer: req.body.telefonnummer,
+      besitzer: req.body.besitzer  // <-- neu von Frontend mitgeschickt
+    });
+
+    const gespeicherterKunde = await neuerKunde.save();
+    res.status(201).json(gespeicherterKunde);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Fehler beim Speichern des Kunden.' });
+  }
+});
+
+// Alle eigenen Kunden abrufen (GET)
+router.get('/:besitzerId', async (req, res) => {
+  try {
+    const kunden = await Kunde.find({ besitzer: req.params.besitzerId });
+    res.json(kunden);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Fehler beim Abrufen der Kunden.' });
+  }
+});
+
+module.exports = router;
