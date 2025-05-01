@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Kunde = require('../models/Kunde');
 
-// Kunde erstellen (POST)
 router.post('/', async (req, res) => {
   try {
     const neuerKunde = new Kunde({
