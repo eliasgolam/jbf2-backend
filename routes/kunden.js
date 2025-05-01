@@ -3,6 +3,8 @@ const router = express.Router();
 const Kunde = require('../models/Kunde');
 
 router.post('/', async (req, res) => {
+  console.log("📥 Eingehende Kundendaten:", req.body); // NEU
+
   try {
     const neuerKunde = new Kunde({
       vorname: req.body.vorname,
@@ -17,16 +19,17 @@ router.post('/', async (req, res) => {
       beruf: req.body.beruf,
       email: req.body.email,
       telefonnummer: req.body.telefonnummer,
-      besitzer: req.body.besitzer  // <-- neu von Frontend mitgeschickt
+      besitzer: req.body.besitzer
     });
 
     const gespeicherterKunde = await neuerKunde.save();
     res.status(201).json(gespeicherterKunde);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Fehler beim Speichern:", err.message, err.errors || err);
     res.status(500).json({ message: 'Fehler beim Speichern des Kunden.' });
   }
 });
+
 
 // Alle eigenen Kunden abrufen (GET)
 router.get('/:besitzerId', async (req, res) => {
