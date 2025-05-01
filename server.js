@@ -15,7 +15,7 @@ mongoose.connect('mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mon
 
 const corsOptions = {
   origin: 'https://jbf2-frontend.vercel.app',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 };
 
