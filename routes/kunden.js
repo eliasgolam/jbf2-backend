@@ -40,4 +40,29 @@ router.get('/:besitzerId', async (req, res) => {
   }
 });
 
+// Kunde aktualisieren (PUT)
+router.put('/:id', async (req, res) => {
+  try {
+    const updated = await Kunde.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Update fehlgeschlagen.' });
+  }
+});
+
+// Kunde löschen (DELETE)
+router.delete('/:id', async (req, res) => {
+  try {
+    await Kunde.findByIdAndDelete(req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Löschen fehlgeschlagen.' });
+  }
+});
+
+
 module.exports = router;
