@@ -6,6 +6,8 @@ const app = express();
 const userRoutes = require('./routes/user');
 const kundenRoutes = require('./routes/kunden');
 const krankenkassenRoutes = require('./routes/krankenkassen');
+const antwortenRoutes = require('./routes/antworten');
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -25,6 +27,8 @@ app.use(express.json());
 app.use('/api/user', userRoutes);
 app.use('/api/kunden', kundenRoutes);
 app.use('/api/krankenkassen', krankenkassenRoutes);
+app.use('/api/antworten', antwortenRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Backend läuft Patron!');
