@@ -14,7 +14,13 @@ const KundeSchema = new mongoose.Schema({
   email: { type: String, required: true },
   telefonnummer: { type: String, required: true },
   besitzer: { type: String, required: true }, // Besitzer-ID (z.B. Email oder Google-ID)
-  erstelltAm: { type: Date, default: Date.now }
+  erstelltAm: { type: Date, default: Date.now },
+
+  // ✅ NEU: Speicherung des PDF-Zustands (Antworten + Signaturen etc.)
+  vag45Antworten: {
+    type: Object,
+    default: null
+  }
 });
 
 module.exports = mongoose.model('Kunde', KundeSchema);

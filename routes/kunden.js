@@ -66,5 +66,33 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// ✅ NEU: VAG45 ANTWORTEN SPEICHERN
+router.post('/:id/vag45', async (req, res) => {
+  try {
+    const updated = await Kunde.findByIdAndUpdate(req.params.id, {
+      vag45Antworten: req.body
+    }, { new: true });
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error('❌ Fehler beim Speichern der VAG45-Antworten:', err);
+    res.status(500).json({ message: 'Fehler beim Speichern.' });
+  }
+});
+
+
+// ✅ NEU: VAG45 ANTWORTEN LADEN
+router.get('/:id/vag45', async (req, res) => {
+  try {
+    const kunde = await Kunde.findById(req.params.id);
+    if (!kunde?.vag45Antworten) {
+      return res.status(404).json({ message: 'Keine VAG-Daten vorhanden.' });
+    }
+    res.status(200).json(kunde.vag45Antworten);
+  } catch (err) {
+    console.error('❌ Fehler beim Abrufen der VAG45-Antworten:', err);
+    res.status(500).json({ message: 'Fehler beim Abrufen.' });
+  }
+});
+
 
 module.exports = router;
