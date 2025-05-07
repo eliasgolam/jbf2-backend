@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
 
 
 // Alle eigenen Kunden abrufen (GET)
-router.get('/:besitzerId', async (req, res) => {
+router.get('/besitzer/:besitzerId', async (req, res) => {
   try {
     const kunden = await Kunde.find({ besitzer: req.params.besitzerId });
     res.json(kunden);
