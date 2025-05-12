@@ -1,0 +1,197 @@
+[
+  {
+    "id": "8",
+    "name": "CSS",
+    "adresse": "Kranken-, Versicherung AG, CSS Assurance-, maladie SA, CSS Assicurazione , malattie SA, Tribschenstrasse 21, Postfach 2568, 6002 Luzern"
+  },
+  {
+    "id": "32",
+    "name": "Aquilana",
+    "adresse": "Versicherungen, Bruggerstrasse 46, 5401 Baden"
+  },
+  {
+    "id": "62",
+    "name": "SUPRA-1846 SA Av.",
+    "adresse": "de la Rasude 8, AG, Groupe Mutuel CH, 1006 Lausanne, SA"
+  },
+  {
+    "id": "134",
+    "name": "Einsiedler",
+    "adresse": "Krankenkasse, Kronenstrasse 19, Postfach 57, 8840 Einsiedeln"
+  },
+  {
+    "id": "194",
+    "name": "Sumiswalder",
+    "adresse": "Krankenkasse, Spitalstrasse 47, 3454 Sumiswald"
+  },
+  {
+    "id": "246",
+    "name": "Genossenschaft",
+    "adresse": "Krankenkasse , Steffisburg, Unterdorfstrasse 37, Postfach, 3612 Steffisburg"
+  },
+  {
+    "id": "290",
+    "name": "CONCORDIA Schweiz.",
+    "adresse": "Kranken- und , Unfallver-sicherung AG, CONCORDIA , Assurance suisse de , maladie et accidents , SA, CONCORDIA , Assicurazione svizzera , malattie e infortuni SA, Bundesplatz 15, 6002 Luzern"
+  },
+  {
+    "id": "312",
+    "name": "Atupri Gesundheits- versicherung AG Atupri Assurance de la  santé",
+    "adresse": "SA, Atupri Assicurazione , della salute SA, Zieglerstrasse 29, Postfach, 3001 Bern"
+  },
+  {
+    "id": "343",
+    "name": "Avenir Assurance",
+    "adresse": "5, UE, AELE, UK, Avenir Assicurazione, 1919 Martigny, UE, AELS, UK, Malattia SA"
+  },
+  {
+    "id": "360",
+    "name": "Krankenkasse",
+    "adresse": "Luzerner Hinterland, Luzernstrasse 19, 6144 Zell LU"
+  },
+  {
+    "id": "376",
+    "name": "KPT",
+    "adresse": "Krankenkasse AG, KPT Caisse-maladie , SA, KPT Cassa malati SA, Wankdorfallee 3, Postfach, 3001 Bern"
+  },
+  {
+    "id": "455",
+    "name": "ÖKK",
+    "adresse": "Kranken- und , Unfallversicherungen , AG, Bahnhofstrasse 13, 7302 Landquart"
+  },
+  {
+    "id": "509",
+    "name": "Sympany",
+    "adresse": "Sympany AG, Vivao Sympany SA, Peter Merian-Weg 4, 4002 Basel"
+  },
+  {
+    "id": "774",
+    "name": "Group Mutuel",
+    "adresse": "5, UE, AELE, UK, Easy Sana , 1919 Martigny, UE, AELS, UK, Assicurazione"
+  },
+  {
+    "id": "780",
+    "name": "Steffisburg",
+    "adresse": "Glarner , Krankenversicherung, Abläsch 8, Postfach, 8762 Schwanden"
+  },
+  {
+    "id": "820",
+    "name": "Cassa",
+    "adresse": "da malsauns, LUMNEZIANA, Postfach 41, 7144 Vella"
+  },
+  {
+    "id": "829",
+    "name": "KLuG",
+    "adresse": "Krankenversicherung, Gubelstrasse 22, 6300 Zug"
+  },
+  {
+    "id": "881",
+    "name": "EGK",
+    "adresse": "Grundversicherungen , AG, Birspark 1, 4242 Laufen"
+  },
+  {
+    "id": "901",
+    "name": "sanavals",
+    "adresse": "146E, Postfach 18, 7132 Vals"
+  },
+  {
+    "id": "923",
+    "name": "Genossenschaft",
+    "adresse": "KRANKENKASSE , SLKK, Hofwiesenstrasse 370, Postfach 5652, 8050 Zürich"
+  },
+  {
+    "id": "941",
+    "name": "sodalis",
+    "adresse": "gesundheitsgruppe, Balfrinstrasse 15, 3930 Visp"
+  },
+  {
+    "id": "966",
+    "name": "vita",
+    "adresse": "surselva, Bahnhofstrasse 33, Postfach 217, 7130 Ilanz"
+  },
+  {
+    "id": "1040",
+    "name": "Verein",
+    "adresse": "Krankenkasse , Visperterminen, Dorfstrasse 66, 3932 Visperterminen"
+  },
+  {
+    "id": "1113",
+    "name": "Caisse-maladie de la",
+    "adresse": "Place centrale 5, 1937 Orsières"
+  },
+  {
+    "id": "1318",
+    "name": "Stiftung",
+    "adresse": "Krankenkasse , Wädenswil, Industriestrasse 15, 8820 Wädenswil"
+  },
+  {
+    "id": "1322",
+    "name": "Krankenkasse",
+    "adresse": "Birchmeier, Hauptstrasse 22, 5444 Künten"
+  },
+  {
+    "id": "1384",
+    "name": "SWICA",
+    "adresse": "Krankenversicherung , AG, SWICA Assurance-, maladie SA, SWICA Assicurazione , malattia SA, Römerstrasse 38, 8401 Winterthur"
+  },
+  {
+    "id": "1386",
+    "name": "Galenos",
+    "adresse": "AG, Militärstrasse 36, Postfach, 8021 Zürich"
+  },
+  {
+    "id": "1401",
+    "name": "rhenusana",
+    "adresse": "Widnauerstrasse 6, 9435 Heerbrugg"
+  },
+  {
+    "id": "1479",
+    "name": "Mutuel Assurance Groupe Mutuel AG Groupe Mutuel CH Maladie SA Mutuel Assurances SA Mutuel Krankenver- Rue des Cèdres",
+    "adresse": "5, SA, EU, EFTA, UK, sicherung AG, 1919 Martigny, UE, AELE, UK, Mutuel Assicurazione"
+  },
+  {
+    "id": "1507",
+    "name": "AMB",
+    "adresse": "Assurances SA , Route de Verbier 13, AG, Groupe Mutuel VS, AMB Versicherungen, AMB Versicherungen , 1934 Le Châble, SA, AG"
+  },
+  {
+    "id": "1509",
+    "name": "Sanitas",
+    "adresse": "Grundversicherungen , AG, Jägergasse 3, Postfach 2010, 8021 Zürich"
+  },
+  {
+    "id": "1535",
+    "name": "Philos Assurance",
+    "adresse": "5, SA, EU, EFTA, UK, versicherung AG, 1919 Martigny, UE, AELE, UK, Philos Assicurazione"
+  },
+  {
+    "id": "1542",
+    "name": "Assura-Basis SA Assura-Basis AG Assura-Basis SA Avenue C.-F.",
+    "adresse": "Ramuz 70, 1009 Pully"
+  },
+  {
+    "id": "1555",
+    "name": "Visana",
+    "adresse": "AG, Weltpoststrasse 19, Postfach, 3000 Bern 16"
+  },
+  {
+    "id": "1560",
+    "name": "Agrisano",
+    "adresse": "Krankenkasse , AG, Laurstrasse 10, 5201 Brugg AG"
+  },
+  {
+    "id": "1562",
+    "name": "Helsana",
+    "adresse": "Versicherungen AG, Helsana Assurances , SA, Helsana Assicurazioni , SA, Helsana Versicherungen , AG, Postfach, 8081 Zürich"
+  },
+  {
+    "id": "1568",
+    "name": "sana24",
+    "adresse": "AG, Weltpoststrasse 19, Postfach, 3000 Bern 16"
+  },
+  {
+    "id": "1570",
+    "name": "vivacare",
+    "adresse": "AG, Weltpoststrasse 19, Postfach, 3000 Bern 16"
+  }
+]
