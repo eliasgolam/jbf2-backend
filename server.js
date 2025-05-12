@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user');
 const kundenRoutes = require('./routes/kunden');
 const krankenkassenRoutes = require('./routes/krankenkassen');
 const antwortenRoutes = require('./routes/antworten');
+const berechnungRoute = require('./routes/berechnung');
 
 
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/kunden', kundenRoutes);
 app.use('/api/krankenkassen', krankenkassenRoutes);
 app.use('/api/antworten', antwortenRoutes);
+app.use('/api', berechnungRoute);
+
 
 
 app.get('/', (req, res) => {
