@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const KrankenkassenDaten = require('../models/Krankenkassendaten');
+const Krankenkassendaten = require('../models/Krankenkassendaten');
 
 // GET: Alle Krankenkassen-Daten als Objekt
 router.get('/', async (req, res) => {
