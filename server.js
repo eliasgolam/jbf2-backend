@@ -18,11 +18,21 @@ mongoose.connect('mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mon
 
 const corsOptions = {
   origin: 'https://jbf2-frontend.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
 
 app.use(cors(corsOptions));
+
+// Zusätzlicher Header-Fix für manche Browser/Proxies
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://jbf2-frontend.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 app.use(express.json());
 
 app.use('/api/user', userRoutes);
