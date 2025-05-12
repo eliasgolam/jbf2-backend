@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const KrankenkassenSchema = new mongoose.Schema({
-  daten: { type: Object, required: true },
+  name: { type: String, required: true, unique: true }, // Name z. B. "Innova"
+  data: { type: Object, required: true },
   erstelltAm: { type: Date, default: Date.now }
 });
 
