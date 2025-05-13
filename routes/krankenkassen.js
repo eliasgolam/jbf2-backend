@@ -5,7 +5,8 @@ const Krankenkassendaten = require('../models/Krankenkassendaten');
 // GET: Alle Krankenkassen-Daten als Objekt
 router.get('/', async (req, res) => {
   try {
-    const daten = await KrankenkassenDaten.find({});
+    const daten = await Krankenkassendaten.find({});
+
     const result = {};
     daten.forEach(entry => {
       result[entry.name] = entry.data;
