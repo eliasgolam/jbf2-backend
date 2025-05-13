@@ -8,9 +8,10 @@ const router = express.Router();
 const CACHE_DIR = path.join(__dirname, "..", "cache");
 
 // 🔧 JSON-Dateien laden
-const tarife = JSON.parse(fs.readFileSync("data/gesamtbericht_ch.json", "utf8"));
-const gemeinden = JSON.parse(fs.readFileSync("data/amtovz_gemeinden.json", "utf8"));
-const regionZuordnungen = JSON.parse(fs.readFileSync("data/praemienregionen_2025.json", "utf8"));
+const tarife = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/gesamtbericht_ch.json"), "utf8"));
+const gemeinden = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/amtovz_gemeinden.json"), "utf8"));
+const regionZuordnungen = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/praemienregionen_2025.json"), "utf8"));
+
 
 const region0Kantone = ["SO", "ZG", "SZ", "NW", "OW", "GL", "AI", "AR", "JU", "NE", "TG", "UR"];
 
