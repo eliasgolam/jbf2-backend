@@ -1,8 +1,16 @@
 const fs = require("fs");
 const XLSX = require("xlsx");
 
-const wb = XLSX.readFile("data/gesamtbericht_ch.xlsx");
-const sheet = XLSX.utils.sheet_to_json(wb.Sheets["Export"]);
-fs.writeFileSync("data/gesamtbericht_ch.json", JSON.stringify(sheet, null, 2));
+try {
+  // 1. XLSX-Datei laden
+  const workbook = XLSX.readFile("data/gesamtbericht_ch.xlsx");
 
-console.log("✅ gesamtbericht_ch.xlsx wurde konvertiert → gesamtbericht_ch.json");
+  // 2. Sheet in JSON umwandeln
+  const sheet = XLSX.utils.sheet_to_json(workbook.Sheets["Export"]);
+
+  // 3. JSON minifizieren und speichern
+  fs.writeFileSync("data/gesamtbericht_ch.json", JSON.stringify(sheet));
+  console.log("✅ Datei wurde erfolgreich konvertiert und minifiziert!");
+} catch (err) {
+  console.error("❌ Fehler beim Konvertieren:", err);
+}
