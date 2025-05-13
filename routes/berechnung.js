@@ -5,35 +5,18 @@ const path = require("path");
 
 const router = express.Router();
 
-const CACHE_DIR = path.join(__dirname, "..", "cache");
-
-// 🔧 JSON-Dateien laden
+// 🔧 JSON-Dateien sicher laden (unabhängig vom Arbeitsverzeichnis)
 const tarife = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/gesamtbericht_ch.json"), "utf8"));
 const gemeinden = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/amtovz_gemeinden.json"), "utf8"));
 const regionZuordnungen = JSON.parse(fs.readFileSync(path.join(__dirname, "../data/praemienregionen_2025.json"), "utf8"));
 
-
 const region0Kantone = ["SO", "ZG", "SZ", "NW", "OW", "GL", "AI", "AR", "JU", "NE", "TG", "UR"];
-
-// 🔧 Cache-Key generieren
-function createCacheKey(personen) {
-  return personen.map(p =>
-    `${p.plz}_${p.franchise}_${p.unfall ? 1 : 0}_${p.geburtsjahr}`
-  ).join("-");
-}
 
 router.post("/berechne", async (req, res) => {
   const { personen } = req.body;
+
   if (!personen || !Array.isArray(personen)) {
     return res.status(400).json({ error: "Fehlende oder ungültige Eingabe." });
-  }
-
-  const key = createCacheKey(personen);
-  const cachePath = path.join(CACHE_DIR, `${key}.json`);
-
-  // ✅ Aus Cache lesen, wenn vorhanden
-  if (fs.existsSync(cachePath)) {
-    return res.json(JSON.parse(fs.readFileSync(cachePath, "utf8")));
   }
 
   const gruppiert = {};
@@ -43,7 +26,7 @@ router.post("/berechne", async (req, res) => {
     const akl = alter < 18 ? "AKL-KIN" : alter >= 26 ? "AKL-ERW" : "AKL-JUG";
     const untergruppe = akl === "AKL-KIN" ? "K1" : null;
 
-    const plzOnly = (p.plz || "").split(" ")[0];
+    const plzOnly = (p.plz || "").split(" ")[0].trim();
     const gemeinde = gemeinden.find(g => g.PLZ?.trim() === plzOnly);
 
     if (!gemeinde) continue;
@@ -88,10 +71,6 @@ router.post("/berechne", async (req, res) => {
   const resultate = Object.values(gruppiert)
     .sort((a, b) => a.summe - b.summe)
     .slice(0, 10);
-
-  // ✅ Speichern im Cache
-  if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR);
-  fs.writeFileSync(cachePath, JSON.stringify(resultate, null, 2), "utf8");
 
   res.json(resultate);
 });
