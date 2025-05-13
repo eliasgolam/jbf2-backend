@@ -2,56 +2,46 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const XLSX = require("xlsx");
-const Papa = require("papaparse");
+
 const router = express.Router();
 
 const CACHE_DIR = path.join(__dirname, "..", "cache");
 
-// Hilfsfunktion für Cache-Key
+// 🔧 JSON-Dateien laden
+const tarife = JSON.parse(fs.readFileSync("data/gesamtbericht_ch.json", "utf8"));
+const gemeinden = JSON.parse(fs.readFileSync("data/amtovz_gemeinden.json", "utf8"));
+const regionZuordnungen = JSON.parse(fs.readFileSync("data/praemienregionen_2025.json", "utf8"));
+
+const region0Kantone = ["SO", "ZG", "SZ", "NW", "OW", "GL", "AI", "AR", "JU", "NE", "TG", "UR"];
+
+// 🔧 Cache-Key generieren
 function createCacheKey(personen) {
   return personen.map(p =>
     `${p.plz}_${p.franchise}_${p.unfall ? 1 : 0}_${p.geburtsjahr}`
   ).join("-");
 }
 
-// Hilfsfunktion zum Laden aller Daten
-function ladeDaten() {
-  const tarife = XLSX.utils.sheet_to_json(
-    XLSX.readFile("data/gesamtbericht_ch.xlsx").Sheets["Export"]
-  );
-
-  const regionZuordnungen = XLSX.utils.sheet_to_json(
-    XLSX.readFile("data/praemienregionen_2025.xlsx").Sheets[0],
-    { header: 1 }
-  ).map(r => ({ bfs: r[1], region: r[3] }));
-
-  const gemeinden = Papa.parse(
-    fs.readFileSync("data/amtovz_gemeinden.csv", "utf8"),
-    { header: true, delimiter: ";" }
-  ).data;
-
-  return { tarife, gemeinden, regionZuordnungen };
-}
-
-const region0Kantone = ["SO", "ZG", "SZ", "NW", "OW", "GL", "AI", "AR", "JU", "NE", "TG", "UR"];
-
 router.post("/berechne", async (req, res) => {
   const { personen } = req.body;
+  if (!personen || !Array.isArray(personen)) {
+    return res.status(400).json({ error: "Fehlende oder ungültige Eingabe." });
+  }
+
   const key = createCacheKey(personen);
   const cachePath = path.join(CACHE_DIR, `${key}.json`);
 
+  // ✅ Aus Cache lesen, wenn vorhanden
   if (fs.existsSync(cachePath)) {
     return res.json(JSON.parse(fs.readFileSync(cachePath, "utf8")));
   }
 
-  const { tarife, gemeinden, regionZuordnungen } = ladeDaten();
   const gruppiert = {};
 
   for (const p of personen) {
     const alter = new Date().getFullYear() - parseInt(p.geburtsjahr);
     const akl = alter < 18 ? "AKL-KIN" : alter >= 26 ? "AKL-ERW" : "AKL-JUG";
     const untergruppe = akl === "AKL-KIN" ? "K1" : null;
+
     const plzOnly = (p.plz || "").split(" ")[0];
     const gemeinde = gemeinden.find(g => g.PLZ?.trim() === plzOnly);
 
@@ -81,15 +71,25 @@ router.post("/berechne", async (req, res) => {
           versicherer: tarif.Versicherer,
           modell: tarif["Tarifbezeichnung"] || "Unbekannt",
           tarifId: tarif["Tarif-ID"],
-          summe: praemie
+          summe: praemie,
+          id,
+          kanton,
+          region: regCode,
+          akl,
+          untergruppe,
+          unfall: p.unfall,
+          franchise: p.franchise
         };
       }
     }
   }
 
-  const resultate = Object.values(gruppiert).sort((a, b) => a.summe - b.summe).slice(0, 10);
+  const resultate = Object.values(gruppiert)
+    .sort((a, b) => a.summe - b.summe)
+    .slice(0, 10);
 
-  // Speichern im Cache
+  // ✅ Speichern im Cache
+  if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR);
   fs.writeFileSync(cachePath, JSON.stringify(resultate, null, 2), "utf8");
 
   res.json(resultate);
