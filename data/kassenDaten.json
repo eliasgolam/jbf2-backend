@@ -6,7 +6,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 3000 } },
     "familienrabatt": { "type": "%", "value": 20 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "hoch" }
+    "preisleistung": { "type": "DROPDOWN", "value": "hoch" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Innova": {
     "fitness": { "type": "CHF", "value": 250 },
@@ -15,7 +16,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 3000 } },
     "familienrabatt": { "type": "%", "value": 0 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "günstig" },
-    "preisleistung": { "type": "DROPDOWN", "value": "günstig" }
+    "preisleistung": { "type": "DROPDOWN", "value": "günstig" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Concordia": {
     "fitness": { "type": "CHF", "value": 200 },
@@ -24,7 +26,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 2000 } },
     "familienrabatt": { "type": "%", "value": 10 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "hoch" }
+    "preisleistung": { "type": "DROPDOWN", "value": "hoch" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Swica": {
     "fitness": { "type": "CHF", "value": 1300 },
@@ -33,7 +36,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 4000 } },
     "familienrabatt": { "type": "%", "value": 47 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "hoch" },
-    "preisleistung": { "type": "DROPDOWN", "value": "hoch" }
+    "preisleistung": { "type": "DROPDOWN", "value": "hoch" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Helsana": {
     "fitness": { "type": "CHF", "value": 400 },
@@ -42,7 +46,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 3000 } },
     "familienrabatt": { "type": "%", "value": 25 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "mittel" }
+    "preisleistung": { "type": "DROPDOWN", "value": "mittel" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Visana": {
     "fitness": { "type": "CHF", "value": 200 },
@@ -51,7 +56,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 5000 } },
     "familienrabatt": { "type": "%", "value": 50 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "mittel" }
+    "preisleistung": { "type": "DROPDOWN", "value": "mittel" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Sanitas": {
     "fitness": { "type": "CHF", "value": 400 },
@@ -60,7 +66,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 80, "amount": 5000 } },
     "familienrabatt": { "type": "%", "value": 0 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "hoch" },
-    "preisleistung": { "type": "DROPDOWN", "value": "mittel" }
+    "preisleistung": { "type": "DROPDOWN", "value": "mittel" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Ökk": {
     "fitness": { "type": "CHF", "value": 300 },
@@ -69,7 +76,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 5000 } },
     "familienrabatt": { "type": "%", "value": 50 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "günstig" }
+    "preisleistung": { "type": "DROPDOWN", "value": "günstig" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "CSS": {
     "fitness": { "type": "CHF", "value": 500 },
@@ -78,7 +86,8 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 5000 } },
     "familienrabatt": { "type": "%", "value": 25 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "hoch" }
+    "preisleistung": { "type": "DROPDOWN", "value": "hoch" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   },
   "Sympany": {
     "fitness": { "type": "CHF", "value": 300 },
@@ -87,6 +96,7 @@
     "zahnversicherung": { "type": "%CHF", "value": { "percent": 75, "amount": 5000 } },
     "familienrabatt": { "type": "%", "value": 72 },
     "spitalaufenthalt": { "type": "DROPDOWN", "value": "mittel" },
-    "preisleistung": { "type": "DROPDOWN", "value": "hoch" }
+    "preisleistung": { "type": "DROPDOWN", "value": "hoch" },
+    "digitalservices": { "type": "DROPDOWN", "value": "gut" }
   }
 }

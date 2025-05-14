@@ -30,16 +30,26 @@ router.get('/', (req, res) => {
   });
 });
 
-// POST: Aktualisiere Krankenkassendaten (Admin-Dashboard)
 router.post('/', (req, res) => {
   const updated = req.body; // z. B. { Swica: { ... } }
+  const kasseName = Object.keys(updated)[0];
+  const kassenWerte = updated[kasseName];
+
+  // Berechne Punkte & Beschreibung neu
+  const enriched = {};
+  for (const key in kassenWerte) {
+    enriched[key] = {
+      ...kassenWerte[key],
+      points: calculatePoints(key, kassenWerte[key].value),
+      description: generateDescription(key, kassenWerte[key].value)
+    };
+  }
 
   fs.readFile(DATA_PATH, 'utf8', (err, data) => {
     if (err) return res.status(500).json({ error: 'Fehler beim Lesen' });
 
     const allData = JSON.parse(data);
-    const kasseName = Object.keys(updated)[0];
-    allData[kasseName] = updated[kasseName];
+    allData[kasseName] = enriched;
 
     fs.writeFile(DATA_PATH, JSON.stringify(allData, null, 2), 'utf8', (err) => {
       if (err) return res.status(500).json({ error: 'Fehler beim Speichern' });
@@ -47,5 +57,6 @@ router.post('/', (req, res) => {
     });
   });
 });
+
 
 module.exports = router;
