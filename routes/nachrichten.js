@@ -43,4 +43,42 @@ router.put('/:id/gelesen', async (req, res) => {
   }
 });
 
+// Nachricht archivieren
+router.put('/:id/archivieren', async (req, res) => {
+  try {
+    const updated = await Nachricht.findByIdAndUpdate(req.params.id, { archiviert: true }, { new: true });
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: 'Fehler beim Archivieren.' });
+  }
+});
+
+// Nachricht löschen
+router.delete('/:id', async (req, res) => {
+  try {
+    await Nachricht.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Nachricht gelöscht.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Fehler beim Löschen.' });
+  }
+});
+
+// Archivierte Nachrichten eines Benutzers abrufen
+router.get('/archiviert/:email', async (req, res) => {
+  try {
+    const daten = await Nachricht.find({
+      archiviert: true,
+      $or: [
+        { sender: req.params.email },
+        { empfaenger: req.params.email }
+      ]
+    }).sort({ erstelltAm: -1 });
+
+    res.status(200).json(daten);
+  } catch (err) {
+    res.status(500).json({ message: 'Fehler beim Abrufen archivierter Nachrichten.' });
+  }
+});
+
+
 module.exports = router;
