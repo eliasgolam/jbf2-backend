@@ -36,6 +36,7 @@ const krankenkassenRoutes = require('./routes/krankenkassen');
 const antwortenRoutes = require('./routes/antworten');
 const berechnungRoute = require('./routes/berechnung');
 const uploadRoute = require('./routes/upload'); // NEU
+const nachrichtenRoutes = require('./routes/nachrichten');
 
 // ✅ API-Endpunkte
 app.use('/api/user', userRoutes);
@@ -44,6 +45,7 @@ app.use('/api/krankenkassen', krankenkassenRoutes);
 app.use('/api/antworten', antwortenRoutes);
 app.use('/api', berechnungRoute);
 app.use('/api', uploadRoute); // NEU: Upload von XLSX
+app.use('/api/nachrichten', nachrichtenRoutes);
 
 app.use("/data", express.static("data"));
 
