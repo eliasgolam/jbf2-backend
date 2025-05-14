@@ -13,9 +13,16 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB verbunden!'))
   .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
-// ✅ CORS für Frontend auf Vercel
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://jbf2-frontend.vercel.app");
+  const allowedOrigins = [
+    'https://jbf2-frontend.vercel.app',
+    'https://myjbfinanz.ch',
+    'http://localhost:3000'
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
