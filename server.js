@@ -16,6 +16,7 @@ mongoose.connect(MONGO_URI)
 app.use((req, res, next) => {
   const allowedOrigins = [
     'https://jbf2-frontend.vercel.app',
+    'https://www.myjbfinanz.ch', 
     'https://myjbfinanz.ch',
     'http://localhost:3000'
   ];
