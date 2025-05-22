@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const checkKundenSession = require('../middleware/sessionKunde');
 
 const router = express.Router();
 
@@ -28,27 +29,28 @@ const speichereAntworten = (alleAntworten) => {
   }
 };
 
-// ✅ GET /api/antworten/:email
-router.get('/:email', (req, res) => {
+// ✅ GET /api/antworten/:email (künftig wird kundenId verwendet)
+router.get('/:email', checkKundenSession, (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
-  const email = decodeURIComponent(req.params.email);
+  const kundenId = req.session.kundenId;
   const alleAntworten = ladeAntworten();
 
-  if (!alleAntworten[email]) {
+  if (!alleAntworten[kundenId]) {
     return res.status(404).json({ message: 'Keine Daten gefunden.' });
   }
 
-  res.status(200).json(alleAntworten[email]);
+  res.status(200).json(alleAntworten[kundenId]);
 });
 
-// ✅ POST /api/antworten/:email
-router.post('/:email', (req, res) => {
-  const email = decodeURIComponent(req.params.email);
+// ✅ POST /api/antworten/:email (künftig wird kundenId verwendet)
+router.post('/:email', checkKundenSession, (req, res) => {
+  const kundenId = req.session.kundenId;
   const daten = req.body;
 
   const alleAntworten = ladeAntworten();
-  alleAntworten[email] = daten;
+  alleAntworten[kundenId] = daten;
+
   speichereAntworten(alleAntworten);
 
   res.status(200).json({ message: 'Antworten gespeichert.' });

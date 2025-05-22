@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Kunde = require('../models/Kunde');
+const checkKundenSession = require('../middleware/sessionKunde');
 
+// 🟢 Neuen Kunden anlegen (öffentlich aufrufbar)
 router.post('/', async (req, res) => {
-  console.log("📥 Eingehende Kundendaten:", req.body); // NEU
+  console.log("📥 Eingehende Kundendaten:", req.body);
 
   try {
     const neuerKunde = new Kunde({
@@ -31,8 +33,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-// Alle eigenen Kunden abrufen (GET)
+// 🟢 Eigene Kunden abrufen
 router.get('/besitzer/:besitzerId', async (req, res) => {
   try {
     const kunden = await Kunde.find({ besitzer: req.params.besitzerId });
@@ -43,12 +44,16 @@ router.get('/besitzer/:besitzerId', async (req, res) => {
   }
 });
 
-// Kunde aktualisieren (PUT)
-router.put('/:id', async (req, res) => {
+// 🔒 Kunden aktualisieren – NUR wenn aktiv in Session
+router.put('/:id', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
+
+  if (kundenId !== req.params.id) {
+    return res.status(403).json({ message: 'Aktiver Kunde stimmt nicht mit Ziel-Kunde überein.' });
+  }
+
   try {
-    const updated = await Kunde.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updated = await Kunde.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
   } catch (err) {
     console.error(err);
@@ -56,8 +61,14 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Kunde löschen (DELETE)
-router.delete('/:id', async (req, res) => {
+// 🔒 Kunde löschen – NUR wenn aktiv in Session
+router.delete('/:id', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
+
+  if (kundenId !== req.params.id) {
+    return res.status(403).json({ message: 'Aktiver Kunde stimmt nicht mit Ziel-Kunde überein.' });
+  }
+
   try {
     await Kunde.findByIdAndDelete(req.params.id);
     res.status(204).end();
@@ -67,8 +78,14 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// ✅ NEU: VAG45 ANTWORTEN SPEICHERN
-router.post('/:id/vag45', async (req, res) => {
+// 🔒 VAG45 ANTWORTEN SPEICHERN – nur bei aktivem Kunden
+router.post('/:id/vag45', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
+
+  if (kundenId !== req.params.id) {
+    return res.status(403).json({ message: 'Aktiver Kunde stimmt nicht mit Ziel-Kunde überein.' });
+  }
+
   try {
     const updated = await Kunde.findByIdAndUpdate(req.params.id, {
       vag45Antworten: req.body
@@ -80,9 +97,14 @@ router.post('/:id/vag45', async (req, res) => {
   }
 });
 
+// 🔒 VAG45 ANTWORTEN LADEN – nur bei aktivem Kunden
+router.get('/:id/vag45', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
 
-// ✅ NEU: VAG45 ANTWORTEN LADEN
-router.get('/:id/vag45', async (req, res) => {
+  if (kundenId !== req.params.id) {
+    return res.status(403).json({ message: 'Aktiver Kunde stimmt nicht mit Ziel-Kunde überein.' });
+  }
+
   try {
     const kunde = await Kunde.findById(req.params.id);
     if (!kunde?.vag45Antworten) {
@@ -94,6 +116,5 @@ router.get('/:id/vag45', async (req, res) => {
     res.status(500).json({ message: 'Fehler beim Abrufen.' });
   }
 });
-
 
 module.exports = router;

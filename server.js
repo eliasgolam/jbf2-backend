@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
 const app = express();
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const sessionRoutes = require('./routes/session'); // NEU
+
+
 
 // ✅ ENV-Variablen (optional sauberer)
 const PORT = process.env.PORT || 5000;
@@ -36,6 +41,14 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use(session({
+  secret: 'supergeheimer-sessionkey', // ändere das in der echten App
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 4 },
+  store: MongoStore.create({ mongoUrl: MONGO_URI })
+}));
+
 
 // ✅ Routen einbinden
 const userRoutes = require('./routes/user');
@@ -60,6 +73,8 @@ app.use('/api', vagUploadRoute); // NEU
 
 
 app.use("/data", express.static("data"));
+app.use('/api/session', sessionRoutes); // NEU
+
 
 // ✅ Health Check
 app.get('/', (req, res) => {
