@@ -7,6 +7,7 @@ router.post('/', async (req, res) => {
 
   try {
     const neuerKunde = new Kunde({
+      anrede: req.body.anrede,
       vorname: req.body.vorname,
       nachname: req.body.nachname,
       geburtsdatum: req.body.geburtsdatum,
