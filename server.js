@@ -42,12 +42,17 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(session({
-  secret: 'supergeheimer-sessionkey', // ändere das in der echten App
+  secret: 'supergeheimer-sessionkey',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 4 },
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 4, // 4 Stunden
+    sameSite: 'none',           // WICHTIG: Cross-Origin Cookie-Zulassung
+    secure: true                // WICHTIG: Nur über HTTPS senden
+  },
   store: MongoStore.create({ mongoUrl: MONGO_URI })
 }));
+
 
 
 // ✅ Routen einbinden
