@@ -9,23 +9,26 @@ router.post('/', async (req, res) => {
 
   try {
     const neuerKunde = new Kunde({
-      anrede: req.body.anrede,
-      vorname: req.body.vorname,
-      nachname: req.body.nachname,
-      geburtsdatum: req.body.geburtsdatum,
-      adresse: req.body.adresse,
-      plz: req.body.plz,
-      ort: req.body.ort,
-      zivilstand: req.body.zivilstand,
-      raucher: req.body.raucher,
-      kinder: req.body.kinder,
-      beruf: req.body.beruf,
-      email: req.body.email,
+      anrede:        req.body.anrede,
+      vorname:       req.body.vorname,
+      nachname:      req.body.nachname,
+      geburtsdatum:  req.body.geburtsdatum,
+      adresse:       req.body.adresse,
+      plz:           req.body.plz,
+      ort:           req.body.ort,
+      zivilstand:    req.body.zivilstand,
+      raucher:       req.body.raucher,
+      kinder:        req.body.kinder,
+      beruf:         req.body.beruf,
+      email:         req.body.email,
       telefonnummer: req.body.telefonnummer,
-      besitzer: req.body.besitzer
+      besitzer:      req.body.besitzer
     });
 
     const gespeicherterKunde = await neuerKunde.save();
+    // ⬇️ hier wird der Kunde direkt als „aktiver Kunde“ in die Session geschrieben
+    req.session.kundenId = gespeicherterKunde._id;
+
     res.status(201).json(gespeicherterKunde);
   } catch (err) {
     console.error("❌ Fehler beim Speichern:", err.message, err.errors || err);
@@ -87,9 +90,11 @@ router.post('/:id/vag45', checkKundenSession, async (req, res) => {
   }
 
   try {
-    const updated = await Kunde.findByIdAndUpdate(req.params.id, {
-      vag45Antworten: req.body
-    }, { new: true });
+    const updated = await Kunde.findByIdAndUpdate(
+      req.params.id,
+      { vag45Antworten: req.body },
+      { new: true }
+    );
     res.status(200).json(updated);
   } catch (err) {
     console.error('❌ Fehler beim Speichern der VAG45-Antworten:', err);
