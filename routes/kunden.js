@@ -122,4 +122,18 @@ router.get('/:id/vag45', checkKundenSession, async (req, res) => {
   }
 });
 
+// 🟢 Einzelnen Kunden abrufen – öffentlich
+router.get('/:id', async (req, res) => {
+  try {
+    const kunde = await Kunde.findById(req.params.id);
+    if (!kunde) {
+      return res.status(404).json({ message: 'Kunde nicht gefunden' });
+    }
+    res.json(kunde);
+  } catch (err) {
+    console.error('❌ Fehler beim Abrufen des Kunden:', err);
+    res.status(500).json({ message: 'Fehler beim Abrufen des Kunden.' });
+  }
+});
+
 module.exports = router;
