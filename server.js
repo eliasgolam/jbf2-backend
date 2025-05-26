@@ -41,6 +41,8 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.set('trust proxy', 1); // ⬅️ Füge das HIER ein
+
 app.use(session({
   secret: 'supergeheimer-sessionkey',
   resave: false,
