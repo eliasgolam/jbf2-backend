@@ -136,4 +136,43 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// 🔒 Tool-Daten SPEICHERN – nur für aktiven Kunden
+router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
+  const toolname = req.params.toolname;
+
+  try {
+    const update = {};
+    update[`toolDaten.${toolname}`] = req.body;
+
+    const updatedKunde = await Kunde.findByIdAndUpdate(
+      kundenId,
+      { $set: update },
+      { new: true }
+    );
+
+    res.status(200).json(updatedKunde);
+  } catch (err) {
+    console.error('❌ Fehler beim Speichern der Tool-Daten:', err);
+    res.status(500).json({ message: 'Fehler beim Speichern der Tool-Daten.' });
+  }
+});
+
+// 🔒 Tool-Daten LADEN – nur für aktiven Kunden
+router.get('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
+  const kundenId = req.session.kundenId;
+  const toolname = req.params.toolname;
+
+  try {
+    const kunde = await Kunde.findById(kundenId).lean();
+    const daten = kunde?.toolDaten?.[toolname] || null;
+
+    res.status(200).json(daten);
+  } catch (err) {
+    console.error('❌ Fehler beim Laden der Tool-Daten:', err);
+    res.status(500).json({ message: 'Fehler beim Laden der Tool-Daten.' });
+  }
+});
+
+
 module.exports = router;
