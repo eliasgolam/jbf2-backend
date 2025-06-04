@@ -17,6 +17,7 @@
     "mongoose": "^8.14.0",
     "multer": "^1.4.5-lts.2",
     "papaparse": "^5.5.2",
+    "socket.io": "^4.8.1",
     "xlsx": "^0.18.5"
   }
 }
