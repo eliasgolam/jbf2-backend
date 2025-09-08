@@ -1,0 +1,72 @@
+<div class="section">
+    <h2 class="section-title">Immobilien-Planung</h2>
+    
+    <div class="key-figures">
+        <div class="key-figure">
+            <div class="key-figure-label">Immobilienwert</div>
+            <div class="key-figure-value">{{formatCurrency sections.property.keyFigures.propertyValue}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Eigenkapital</div>
+            <div class="key-figure-value">{{formatCurrency sections.property.keyFigures.equity}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Hypothek</div>
+            <div class="key-figure-value">{{formatCurrency sections.property.keyFigures.mortgage}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Monatliche Rate</div>
+            <div class="key-figure-value">{{formatCurrency sections.property.keyFigures.monthlyPayment}}</div>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kategorie</th>
+                <th class="currency">Betrag (CHF)</th>
+                <th class="percentage">Anteil (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Immobilienwert</td>
+                <td class="currency">{{formatCurrency sections.property.keyFigures.propertyValue}}</td>
+                <td class="percentage">100%</td>
+            </tr>
+            <tr>
+                <td>Eigenkapital</td>
+                <td class="currency">{{formatCurrency sections.property.keyFigures.equity}}</td>
+                <td class="percentage">{{formatPercentage sections.property.keyFigures.equityRatio}}</td>
+            </tr>
+            <tr>
+                <td>Hypothek</td>
+                <td class="currency">{{formatCurrency sections.property.keyFigures.mortgage}}</td>
+                <td class="percentage">{{formatPercentage sections.property.keyFigures.mortgageRatio}}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 15px; padding: 15px; background: {{#if sections.property.keyFigures.affordable}}#d4edda{{else}}#f8d7da{{/if}}; border: 1px solid {{#if sections.property.keyFigures.affordable}}#c3e6cb{{else}}#f5c6cb{{/if}}; border-radius: 4px;">
+        <h4 style="margin: 0 0 10px 0; color: {{#if sections.property.keyFigures.affordable}}#155724{{else}}#721c24{{/if}};">
+            {{#if sections.property.keyFigures.affordable}}✅ Tragbar{{else}}❌ Nicht tragbar{{/if}}
+        </h4>
+        <p style="margin: 0; color: {{#if sections.property.keyFigures.affordable}}#155724{{else}}#721c24{{/if}};">
+            {{#if sections.property.keyFigures.affordable}}
+            Die Immobilie ist mit dem aktuellen Einkommen tragbar.
+            {{else}}
+            Die Immobilie ist mit dem aktuellen Einkommen nicht tragbar. 
+            Erforderliches Einkommen: {{formatCurrency sections.property.keyFigures.requiredIncome}}
+            {{/if}}
+        </p>
+    </div>
+    
+    {{#if sections.property.notes}}
+    <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
+        <strong>Hinweise:</strong> {{sections.property.notes}}
+    </div>
+    {{/if}}
+</div>
+
+<div class="page-break"></div>
+

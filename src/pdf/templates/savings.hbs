@@ -1,0 +1,216 @@
+{{#if present}}
+<div class="section savings-section">
+  <h2 class="section-title">{{title}}</h2>
+  
+  {{#if keyFigures}}
+  <div class="key-figures">
+    <h3>Kernzahlen</h3>
+    <div class="figures-grid">
+      <div class="figure-item">
+        <span class="figure-label">Startkapital:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.startCapital}}</span>
+      </div>
+      <div class="figure-item">
+        <span class="figure-label">Monatliche Rate:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.monthlyRate}}</span>
+      </div>
+      <div class="figure-item">
+        <span class="figure-label">Zinssatz:</span>
+        <span class="figure-value">{{formatPercentage keyFigures.ratePercent}}</span>
+      </div>
+      <div class="figure-item">
+        <span class="figure-label">Laufzeit:</span>
+        <span class="figure-value">{{keyFigures.years}} Jahre</span>
+      </div>
+      {{#if keyFigures.targetAmount}}
+      <div class="figure-item">
+        <span class="figure-label">Zielbetrag:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.targetAmount}}</span>
+      </div>
+      {{/if}}
+      <div class="figure-item highlight">
+        <span class="figure-label">Endkapital:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.endAmount}}</span>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if chartDataUrl}}
+  <div class="chart-container">
+    <h3>Kapitalentwicklung</h3>
+    <div class="chart-wrapper">
+      <img src="{{chartDataUrl}}" alt="Sparplan Chart" class="savings-chart" />
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if schedule}}
+  <div class="schedule-table">
+    <h3>Jahresübersicht</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Jahr</th>
+          <th>Startkapital</th>
+          <th>Monatliche Rate</th>
+          <th>Endkapital</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each schedule}}
+        <tr>
+          <td>{{year}}</td>
+          <td>{{formatCurrency startCapital}}</td>
+          <td>{{formatCurrency monthlyRate}}</td>
+          <td class="highlight">{{formatCurrency yearEndCapital}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{/if}}
+
+  {{#if notes}}
+  <div class="notes">
+    <h3>Notizen</h3>
+    <p>{{notes}}</p>
+  </div>
+  {{/if}}
+</div>
+
+<style>
+.savings-section {
+  margin-bottom: 2rem;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.key-figures h3,
+.chart-container h3,
+.schedule-table h3,
+.notes h3 {
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.figures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.figure-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border-left: 4px solid #2563eb;
+}
+
+.figure-item.highlight {
+  background-color: #eff6ff;
+  border-left-color: #1d4ed8;
+  font-weight: 600;
+}
+
+.figure-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.figure-value {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.chart-container {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.chart-wrapper {
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.savings-chart {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.schedule-table {
+  margin: 1.5rem 0;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.data-table thead {
+  background-color: #f3f4f6;
+}
+
+.data-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.data-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+.data-table td.highlight {
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.notes {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border-left: 4px solid #10b981;
+}
+
+.notes p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+</style>
+{{/if}}

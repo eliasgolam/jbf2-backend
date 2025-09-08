@@ -1,0 +1,86 @@
+{{#if executiveSummary}}
+<div class="section executive-summary">
+  <h2 class="section-title">Executive Summary</h2>
+  
+  {{#if executiveSummary.summaryNotes}}
+  <div class="summary-notes">
+    <p>{{executiveSummary.summaryNotes}}</p>
+  </div>
+  {{/if}}
+
+  {{#if executiveSummary.keyInsights}}
+  <div class="key-insights">
+    <h3>Wichtige Erkenntnisse</h3>
+    <ul class="insights-list">
+      {{#each executiveSummary.keyInsights}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+</div>
+
+<style>
+.executive-summary {
+  margin-bottom: 2rem;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.summary-notes {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border-radius: 0.5rem;
+  border-left: 4px solid #0ea5e9;
+}
+
+.summary-notes p {
+  margin: 0;
+  color: #1e40af;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.key-insights h3 {
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.insights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.insights-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.insights-list li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.insights-list li:last-child {
+  border-bottom: none;
+}
+</style>
+{{/if}}

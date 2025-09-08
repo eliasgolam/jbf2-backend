@@ -1,0 +1,68 @@
+<div class="section">
+    <h2 class="section-title">Vorsorge-Planung</h2>
+    
+    <div class="key-figures">
+        <div class="key-figure">
+            <div class="key-figure-label">3. Säule A</div>
+            <div class="key-figure-value">{{formatCurrency sections.pension.keyFigures.pillar3a}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">3. Säule B</div>
+            <div class="key-figure-value">{{formatCurrency sections.pension.keyFigures.pillar3b}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Lebensversicherung</div>
+            <div class="key-figure-value">{{formatCurrency sections.pension.keyFigures.lifeInsurance}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Total Vorsorge</div>
+            <div class="key-figure-value">{{formatCurrency sections.pension.keyFigures.total}}</div>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Vorsorgeart</th>
+                <th class="currency">Jährlicher Beitrag</th>
+                <th class="currency">Monatlicher Beitrag</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>3. Säule A (Pensionskasse)</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.pillar3a}}</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.pillar3aMonthly}}</td>
+                <td>{{sections.pension.keyFigures.pillar3aStatus}}</td>
+            </tr>
+            <tr>
+                <td>3. Säule B (Privatvorsorge)</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.pillar3b}}</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.pillar3bMonthly}}</td>
+                <td>{{sections.pension.keyFigures.pillar3bStatus}}</td>
+            </tr>
+            <tr>
+                <td>Lebensversicherung</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.lifeInsurance}}</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.lifeInsuranceMonthly}}</td>
+                <td>{{sections.pension.keyFigures.lifeInsuranceStatus}}</td>
+            </tr>
+            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                <td>Total</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.total}}</td>
+                <td class="currency">{{formatCurrency sections.pension.keyFigures.totalMonthly}}</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    {{#if sections.pension.notes}}
+    <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
+        <strong>Hinweise:</strong> {{sections.pension.notes}}
+    </div>
+    {{/if}}
+</div>
+
+<div class="page-break"></div>
+

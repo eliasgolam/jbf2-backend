@@ -1,0 +1,63 @@
+<div class="section">
+    <h2 class="section-title">Gesundheitsversicherung</h2>
+    
+    <div class="key-figures">
+        <div class="key-figure">
+            <div class="key-figure-label">Prämienregion</div>
+            <div class="key-figure-value">{{sections.health.keyFigures.premiumRegion}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Franchise</div>
+            <div class="key-figure-value">{{formatCurrency sections.health.keyFigures.franchise}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Monatliche Prämie</div>
+            <div class="key-figure-value">{{formatCurrency sections.health.keyFigures.premium}}</div>
+        </div>
+        <div class="key-figure">
+            <div class="key-figure-label">Selbstbehalt</div>
+            <div class="key-figure-value">{{formatCurrency sections.health.keyFigures.deductible}}</div>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th class="currency">Betrag (CHF)</th>
+                <th>Beschreibung</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Jährliche Prämie</td>
+                <td class="currency">{{formatCurrency sections.health.keyFigures.annualPremium}}</td>
+                <td>Monatliche Prämie × 12</td>
+            </tr>
+            <tr>
+                <td>Franchise</td>
+                <td class="currency">{{formatCurrency sections.health.keyFigures.franchise}}</td>
+                <td>Jährlicher Selbstbehalt vor Versicherungseintritt</td>
+            </tr>
+            <tr>
+                <td>Selbstbehalt</td>
+                <td class="currency">{{formatCurrency sections.health.keyFigures.deductible}}</td>
+                <td>Zusätzlicher Selbstbehalt nach Franchise</td>
+            </tr>
+            <tr>
+                <td>Max. Selbstbehalt</td>
+                <td class="currency">{{formatCurrency sections.health.keyFigures.maxDeductible}}</td>
+                <td>Franchise + Selbstbehalt</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    {{#if sections.health.notes}}
+    <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
+        <strong>Hinweise:</strong> {{sections.health.notes}}
+    </div>
+    {{/if}}
+</div>
+
+<div class="page-break"></div>
+
