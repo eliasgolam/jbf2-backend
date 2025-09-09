@@ -1,3 +1,4 @@
+console.log('>>> LOADED server.js from', __dirname, 'cwd=', process.cwd());
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -10,6 +11,14 @@ const MongoStore = require('connect-mongo');
 
 // ✅ Express-App & HTTP-Server
 const app = express();
+app.get('/api/zz-top', (_req, res) => res.json({ ok: true, where: 'top-of-file' }));
+app.get('/zz-root', (_req, res) => res.send('zz-root-ok'));
+// ✅ Request-Log-Middleware (ganz oben nach app = express())
+app.use((req, _res, next) => { 
+  console.log('[REQ]', req.method, req.url); 
+  next(); 
+});
+
 const server = http.createServer(app);
 
 // ✅ Socket.IO initialisieren
@@ -146,6 +155,26 @@ app.use('/api', berechnungRoute);
 app.use('/api', uploadRoute);
 app.use('/api/nachrichten', nachrichtenRoutes);
 app.use('/api', vagUploadRoute);
+
+// --- BEGIN: Direct minimal handlers for routing smoke test ---
+app.get('/api/ping', (_req, res) => {
+  res.json({ ok: true, source: 'direct-handler' });
+});
+
+app.put('/api/advice/:id', (req, res) => {
+  console.log('[DIRECT] PUT /api/advice/:id', req.params.id);
+  // noop upsert
+  res.status(204).end();
+});
+
+app.post('/api/advice/:id/summary-pdf', (req, res) => {
+  console.log('[DIRECT] POST /api/advice/:id/summary-pdf', req.params.id);
+  const pdf = Buffer.from('%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Length', String(pdf.length));
+  res.status(200).send(pdf);
+});
+// --- END: Direct minimal handlers for routing smoke test ---
 
 // ✅ Advice API
 app.use('/api', adviceApiRoutes);
