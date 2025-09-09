@@ -161,7 +161,7 @@ app.get('/', (req, res) => {
 // ✅ Error Logging Middleware (must be last)
 app.use(errorLogger);
 
-// ✅ PDF Generation enabled for testing
+// ✅ PDF Generation enabled for normal development
 process.env.PDF_ENABLED = 'true';
 
 // ✅ Server starten (Express + WebSocket)
