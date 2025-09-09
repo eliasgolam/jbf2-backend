@@ -8,28 +8,21 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 
-// Puppeteer browser instance (singleton)
-let browser = null;
-
 /**
  * Initialize Puppeteer browser instance
  */
 async function initBrowser() {
-  if (!browser) {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ]
-    });
-  }
-  return browser;
+  return await puppeteer.launch({
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--no-zygote',
+      '--single-process'
+    ]
+  });
 }
 
 /**
@@ -117,9 +110,10 @@ function renderTemplate(templateName, data) {
  */
 async function htmlToPdf(html) {
   const browser = await initBrowser();
-  const page = await browser.newPage();
   
   try {
+    const page = await browser.newPage();
+    
     await page.setContent(html, { 
       waitUntil: 'networkidle0',
       timeout: 30000 
@@ -145,7 +139,7 @@ async function htmlToPdf(html) {
 
     return pdfBuffer;
   } finally {
-    await page.close();
+    await browser.close().catch(() => {});
   }
 }
 
@@ -173,18 +167,7 @@ async function generatePdf(sessionData) {
   }
 }
 
-/**
- * Close browser instance (cleanup)
- */
-async function closeBrowser() {
-  if (browser) {
-    await browser.close();
-    browser = null;
-  }
-}
-
 module.exports = {
-  generatePdf,
-  closeBrowser
+  generatePdf
 };
 

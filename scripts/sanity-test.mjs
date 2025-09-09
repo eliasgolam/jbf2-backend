@@ -86,6 +86,16 @@ try {
   console.log(`   Content-Length: ${contentLength}`);
   console.log(`   Body bytes: ${body.length}`);
   
+  // Try to parse JSON error response
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      const jsonBody = JSON.parse(body.toString());
+      console.log(`   JSON Error: ${JSON.stringify(jsonBody, null, 2)}`);
+    } catch (e) {
+      console.log(`   Raw Body: ${body.toString()}`);
+    }
+  }
+  
   if (response.ok && contentType === 'application/pdf') {
     console.log('   ✅ POST /api/advice/test-123/summary-pdf - SUCCESS (PDF generated)');
   } else if (response.status === 503) {
