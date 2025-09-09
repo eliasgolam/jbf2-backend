@@ -4,6 +4,7 @@
  */
 
 const puppeteer = require('puppeteer');
+const { executablePath } = require('puppeteer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -14,11 +15,11 @@ const path = require('path');
 async function initBrowser() {
   return await puppeteer.launch({
     headless: 'new',
+    executablePath: await executablePath(),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
-      '--disable-gpu',
       '--no-zygote',
       '--single-process'
     ]
