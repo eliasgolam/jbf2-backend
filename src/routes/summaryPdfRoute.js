@@ -15,12 +15,14 @@ const { logSecurityEvent, logPerformance } = require('../../middleware/logging')
  * POST /api/advice/:id/summary-pdf
  * Generate PDF summary for advice session
  */
-router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res) => {
+router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log('[PDF] start', { id: req.params.id });
 
     // Check if PDF generation is enabled
     if (process.env.PDF_ENABLED !== 'true') {
+      console.log('[PDF] disabled');
       return res.status(503).json({ 
         message: 'PDF disabled' 
       });
@@ -28,27 +30,35 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res) => {
 
     // Validate session ID
     if (!id || typeof id !== 'string') {
+      console.log('[PDF] invalid session ID', { id });
       return res.status(400).json({ 
         message: 'Invalid session ID' 
       });
     }
 
     // Load session from repository
+    console.log('[PDF] loading session from repository');
     const adviceRepository = getRepository();
     const session = await adviceRepository.get(id);
     if (!session) {
+      console.log('[PDF] session not found', { id });
       return res.status(404).json({ 
         message: 'Session not found' 
       });
     }
+    console.log('[PDF] session loaded', { sessionId: id, hasData: !!session });
 
     // Build PDF DTO
+    console.log('[PDF] building PDF DTO');
     const pdfDto = await buildPdfDto(session);
+    console.log('[PDF] PDF DTO built', { hasData: !!pdfDto });
 
     // Generate PDF with performance logging
+    console.log('[PDF] generating PDF');
     const startTime = Date.now();
     const pdfBuffer = await generatePdf(pdfDto);
     const duration = Date.now() - startTime;
+    console.log('[PDF] PDF generated', { duration: `${duration}ms`, size: pdfBuffer.length });
     
     logPerformance('PDF Generation', duration, {
       sessionId: id,
@@ -63,10 +73,16 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res) => {
     res.setHeader('Content-Length', pdfBuffer.length);
 
     // Send PDF
+    console.log('[PDF] sending PDF response');
     res.send(pdfBuffer);
 
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('[PDF] failed', error);
+    console.error('[PDF] error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
     // Return appropriate error response
     if (error.message.includes('Template not found')) {
@@ -81,9 +97,8 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res) => {
       });
     }
 
-    res.status(500).json({ 
-      message: 'Internal server error' 
-    });
+    // Pass error to global error handler
+    next(error);
   }
 });
 

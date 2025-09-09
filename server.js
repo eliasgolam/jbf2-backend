@@ -172,6 +172,12 @@ app.get('/healthz', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 // ✅ Error Logging Middleware (must be last)
 app.use(errorLogger);
 
+// ✅ Global Error Handler
+app.use((err, _req, res, _next) => {
+  console.error('[ERR]', err.message, err.stack);
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+});
+
 // ✅ PDF Generation enabled for normal development
 process.env.PDF_ENABLED = 'true';
 

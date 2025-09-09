@@ -1,0 +1,28 @@
+### Sanity Tests for Advice API
+### Test these endpoints to verify the Advice API is working
+
+### 1. Health Check
+GET https://api.myjbfinanz.ch/healthz
+Accept: application/json
+
+### 2. Create/Update Advice Session
+PUT https://api.myjbfinanz.ch/api/advice/test-123
+Content-Type: application/json
+
+{
+  "foo": "bar"
+}
+
+### 3. Get Advice Session
+GET https://api.myjbfinanz.ch/api/advice/test-123
+Accept: application/json
+
+### 4. Generate PDF Summary
+POST https://api.myjbfinanz.ch/api/advice/test-123/summary-pdf
+Content-Type: application/json
+
+### Expected Results:
+### 1. GET /healthz → 200 { "ok": true, "ts": 1234567890 }
+### 2. PUT /api/advice/test-123 → 204 No Content
+### 3. GET /api/advice/test-123 → 200 { "meta": {...}, "foo": "bar" }
+### 4. POST /api/advice/test-123/summary-pdf → 200 application/pdf
