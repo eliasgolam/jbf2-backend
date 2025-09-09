@@ -20,6 +20,21 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     const { id } = req.params;
     console.log('[PDF] start', { id: req.params.id });
 
+    // Optional smoke test: enable by setting SMOKE_PDF=1 in env
+    if (process.env.SMOKE_PDF === '1') {
+      const { initBrowser } = require('../pdf/renderPdf');
+      const browser = await initBrowser();
+      try {
+        const page = await browser.newPage();
+        await page.setContent(`<html><body><h1>Smoke OK ${req.params.id}</h1></body></html>`, { waitUntil: 'networkidle0' });
+        const pdf = await page.pdf({ format: 'A4' });
+        res.setHeader('Content-Type', 'application/pdf');
+        return res.status(200).send(pdf);
+      } finally {
+        await browser.close().catch(() => {});
+      }
+    }
+
     // Check if PDF generation is enabled
     if (process.env.PDF_ENABLED !== 'true') {
       console.log('[PDF] disabled');

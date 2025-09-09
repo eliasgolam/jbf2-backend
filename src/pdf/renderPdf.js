@@ -169,6 +169,7 @@ async function generatePdf(sessionData) {
 }
 
 module.exports = {
-  generatePdf
+  generatePdf,
+  initBrowser
 };
 
