@@ -5,11 +5,36 @@
 
 const express = require('express');
 const router = express.Router();
+const { initBrowser } = require('../pdf/renderPdf');
 const { getRepository } = require('../config/database');
 const { generatePdf } = require('../pdf/renderPdf');
 const { buildPdfDto } = require('../pdf/buildPdfDto');
 const { optionalAuth, rateLimit } = require('../../middleware/auth');
 const { logSecurityEvent, logPerformance } = require('../../middleware/logging');
+
+// Health-Route (nur wenn SMOKE_PDF=1)
+if (process.env.SMOKE_PDF === '1') {
+  router.get('/health/pdf', async (req, res) => {
+    try {
+      const browser = await initBrowser();
+      try {
+        const page = await browser.newPage();
+        await page.setContent('<html><body><h1>Smoke OK</h1></body></html>', { waitUntil: 'networkidle0' });
+        const pdf = await page.pdf({ format: 'A4' });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.status(200).send(pdf);
+      } finally {
+        await browser.close().catch(() => {});
+      }
+    } catch (error) {
+      console.error('[HEALTH] PDF health check failed:', error);
+      res.status(500).json({ 
+        message: 'Health check failed',
+        error: error.message 
+      });
+    }
+  });
+}
 
 /**
  * POST /api/advice/:id/summary-pdf
@@ -169,53 +194,5 @@ router.get('/:id/summary-pdf/status', async (req, res) => {
   }
 });
 
-/**
- * Health PDF Handler (separate from router for conditional mounting)
- * Only active when SMOKE_PDF=1
- */
-async function healthPdfHandler(req, res) {
-  try {
-    console.log('[HEALTH] PDF health check requested');
-
-    const { initBrowser } = require('../pdf/renderPdf');
-    const browser = await initBrowser();
-    
-    try {
-      const page = await browser.newPage();
-      await page.setContent(`
-        <html>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-            <h1 style="color: #2563eb;">Smoke OK</h1>
-            <p>PDF Generation is working correctly</p>
-            <p>Timestamp: ${new Date().toISOString()}</p>
-          </body>
-        </html>
-      `, { 
-        waitUntil: 'networkidle0',
-        timeout: 10000 
-      });
-      
-      const pdfBuffer = await page.pdf({ 
-        format: 'A4',
-        margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
-      });
-      
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'inline; filename="health-check.pdf"');
-      res.status(200).send(pdfBuffer);
-      
-    } finally {
-      await browser.close().catch(() => {});
-    }
-
-  } catch (error) {
-    console.error('[HEALTH] PDF health check failed:', error);
-    res.status(500).json({ 
-      message: 'Health check failed',
-      error: error.message 
-    });
-  }
-}
-
-module.exports = { router, healthPdfHandler };
+module.exports = router;
 

@@ -140,11 +140,8 @@ const uploadRoute = require('./routes/upload');
 const nachrichtenRoutes = require('./routes/nachrichten');
 const vagUploadRoute = require('./routes/vagUpload');
 
-// ✅ Advice API Routes
-const adviceApiRoutes = require('./src/routes/index');
-
-// ✅ PDF Routes
-const summaryPdfRoute = require('./src/routes/summaryPdfRoute');
+// ✅ API Routes
+const routes = require('./src/routes/index');
 
 // ✅ API-Endpunkte
 app.use('/api/session', sessionRoutes);
@@ -157,17 +154,8 @@ app.use('/api', uploadRoute);
 app.use('/api/nachrichten', nachrichtenRoutes);
 app.use('/api', vagUploadRoute);
 
-
-// ✅ Advice API
-app.use('/api', adviceApiRoutes);
-
-// ✅ PDF Routes
-app.use('/api/advice', summaryPdfRoute.router);
-
-// ✅ Health-PDF nur, wenn SMOKE_PDF=1
-if (process.env.SMOKE_PDF === '1') {
-  app.get('/health/pdf', summaryPdfRoute.healthPdfHandler);
-}
+// ✅ Main API Routes (includes advice and PDF routes)
+app.use('/api', routes);
 
 // ✅ Statische Daten (z. B. JSON-Dateien)
 app.use("/data", express.static("data"));

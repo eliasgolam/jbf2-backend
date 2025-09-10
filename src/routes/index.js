@@ -6,6 +6,8 @@
 const express = require('express');
 const router = express.Router();
 
+const summaryPdfRoute = require('./summaryPdfRoute');
+
 // Health check endpoint
 router.get('/ping', (req, res) => {
   res.json({ ok: true });
@@ -15,7 +17,6 @@ router.get('/ping', (req, res) => {
 router.use('/advice', require('./adviceRoutes'));
 
 // PDF summary routes
-const summaryPdfRoute = require('./summaryPdfRoute');
-router.use('/advice', summaryPdfRoute.router);
+router.use('/', summaryPdfRoute);
 
 module.exports = router;
