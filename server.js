@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -56,48 +57,25 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
 // ✅ CORS-Middleware (Production-Ready)
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    // Production domains
-    'https://jbf2-frontend.vercel.app',
-    'https://www.myjbfinanz.ch',
-    'https://myjbfinanz.ch',
-    'https://jbfinanz.ch',
-    'https://www.jbfinanz.ch',
-    // Development domains
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000'
-  ];
-  
-  const origin = req.headers.origin;
-  const isAllowedOrigin = allowedOrigins.includes(origin);
-  
-  // Set CORS headers
-  if (isAllowedOrigin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else if (process.env.NODE_ENV === 'development') {
-    // Allow localhost in development
-    res.setHeader("Access-Control-Allow-Origin", origin || '*');
-  }
-  
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Max-Age", "86400"); // 24 hours
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://app.myjbfinanz.ch',
+  'https://myjbfinanz.ch'
+];
 
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // allow direct GETs (health)
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
+}));
 
-  // Log unauthorized CORS attempts in production
-  if (!isAllowedOrigin && process.env.NODE_ENV === 'production') {
-    console.warn(`🚫 Unauthorized CORS request from origin: ${origin} to ${req.path}`);
-  }
-
-  next();
-});
+// Handle OPTIONS quickly
+app.options('*', cors());
 
 // ✅ Body & Trust Proxy
 app.use(express.json({ limit: '10mb' })); // Limit request size
