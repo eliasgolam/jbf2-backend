@@ -15,6 +15,7 @@ router.get('/ping', (req, res) => {
 router.use('/advice', require('./adviceRoutes'));
 
 // PDF summary routes
-router.use('/advice', require('./summaryPdfRoute'));
+const summaryPdfRoute = require('./summaryPdfRoute');
+router.use('/advice', summaryPdfRoute.router);
 
 module.exports = router;
