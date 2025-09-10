@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "postinstall": "node -e \"console.log('postinstall noop')\"",
-    "prestart": "npx puppeteer browsers install chrome",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,7 +25,8 @@
     "multer": "^1.4.5-lts.2",
     "node-fetch": "^3.3.2",
     "papaparse": "^5.5.2",
-    "puppeteer": "^23.7.1",
+    "@sparticuz/chromium": "^123.0.0",
+    "puppeteer-core": "^23.7.1",
     "socket.io": "^4.8.1",
     "xlsx": "^0.18.5"
   }

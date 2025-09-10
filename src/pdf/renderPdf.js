@@ -3,7 +3,8 @@
  * Handles Handlebars template rendering and Puppeteer PDF generation
  */
 
-const puppeteer = require('puppeteer');
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -15,14 +16,9 @@ async function initBrowser() {
   try {
     console.info('[PDF] launching puppeteer...');
     const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--no-zygote',
-        '--single-process'
-      ],
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
       defaultViewport: { width: 1280, height: 800 }
     });
     console.info('[PDF] browser launched');
