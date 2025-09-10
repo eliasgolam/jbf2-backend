@@ -170,18 +170,11 @@ router.get('/:id/summary-pdf/status', async (req, res) => {
 });
 
 /**
- * GET /health/pdf
- * Health check route for PDF generation (only active when SMOKE_PDF=1)
+ * Health PDF Handler (separate from router for conditional mounting)
+ * Only active when SMOKE_PDF=1
  */
-router.get('/health/pdf', async (req, res) => {
+async function healthPdfHandler(req, res) {
   try {
-    // Only active when SMOKE_PDF environment variable is set to '1'
-    if (process.env.SMOKE_PDF !== '1') {
-      return res.status(404).json({ 
-        message: 'Health check not available' 
-      });
-    }
-
     console.log('[HEALTH] PDF health check requested');
 
     const { initBrowser } = require('../pdf/renderPdf');
@@ -222,7 +215,7 @@ router.get('/health/pdf', async (req, res) => {
       error: error.message 
     });
   }
-});
+}
 
-module.exports = router;
+module.exports = { router, healthPdfHandler };
 
