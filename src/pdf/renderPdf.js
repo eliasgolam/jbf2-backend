@@ -4,7 +4,6 @@
  */
 
 const puppeteer = require('puppeteer');
-const { executablePath } = require('puppeteer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -13,17 +12,25 @@ const path = require('path');
  * Initialize Puppeteer browser instance
  */
 async function initBrowser() {
-  return await puppeteer.launch({
-    headless: 'new',
-    executablePath: await executablePath(),
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--no-zygote',
-      '--single-process'
-    ]
-  });
+  try {
+    console.info('[PDF] launching puppeteer...');
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--no-zygote',
+        '--single-process'
+      ],
+      defaultViewport: { width: 1280, height: 800 }
+    });
+    console.info('[PDF] browser launched');
+    return browser;
+  } catch (err) {
+    console.error('[PDF] launch failed', err);
+    throw err;
+  }
 }
 
 /**

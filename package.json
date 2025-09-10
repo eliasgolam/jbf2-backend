@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "postinstall": "puppeteer browsers install chrome",
-    "prestart": "puppeteer browsers install chrome",
+    "postinstall": "node -e \"console.log('postinstall noop')\"",
+    "prestart": "npx puppeteer browsers install chrome",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
