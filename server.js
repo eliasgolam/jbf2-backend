@@ -2,13 +2,13 @@ console.log('>>> LOADED server.js from', __dirname, 'cwd=', process.cwd());
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+// const MongoStore = require('connect-mongo');
 
 // ✅ Express-App & HTTP-Server
 const app = express();
@@ -24,7 +24,6 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://jbf2-frontend.vercel.app",
       "https://www.myjbfinanz.ch",
       "https://myjbfinanz.ch",
       "http://localhost:3000"
@@ -51,31 +50,43 @@ const { initializeDatabase, isUsingMongo } = require('./src/config/database');
 const { requestLogger, errorLogger, logSecurityEvent } = require('./middleware/logging');
 
 // ✅ MongoDB-Verbindung (legacy for existing routes)
-const MONGO_URI = 'mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mongodb.net/?retryWrites=true&w=majority&appName=JBCluster';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB verbunden!'))
-  .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
+// const MONGO_URI = 'mongodb+srv://eliasgolam:s5ERduVbs9lLDBxm@jbcluster.phajee.mongodb.net/?retryWrites=true&w=majority&appName=JBCluster';
+// mongoose.connect(MONGO_URI)
+//   .then(() => console.log('✅ MongoDB verbunden!'))
+//   .catch(err => console.error('❌ MongoDB-Verbindung fehlgeschlagen:', err));
 
 // ✅ CORS-Middleware (Production-Ready)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://app.myjbfinanz.ch',
-  'https://myjbfinanz.ch'
-];
+// const allowedOrigins = [
+//   'http://localhost:3000',
+//   'https://app.myjbfinanz.ch',
+//   'https://myjbfinanz.ch'
+// ];
 
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // allow direct GETs (health)
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
-}));
+// app.use(cors({
+//   origin: (origin, cb) => {
+//     if (!origin) return cb(null, true); // allow direct GETs (health)
+//     if (allowedOrigins.includes(origin)) return cb(null, true);
+//     return cb(new Error('Not allowed by CORS'));
+//   },
+//   credentials: true,
+//   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+//   allowedHeaders: ['Content-Type','Authorization']
+// }));
 
 // Handle OPTIONS quickly
-app.options('*', cors());
+// app.options('*', cors());
+
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'https://app.myjbfinanz.ch',
+  'https://myjbfinanz.ch',
+]);
+
+// Einfache CORS-Konfiguration
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 // ✅ Body & Trust Proxy
 app.use(express.json({ limit: '10mb' })); // Limit request size
@@ -95,16 +106,12 @@ app.use((req, res, next) => {
 app.use(requestLogger);
 
 // ✅ Session-Middleware
+// Temporäre Memory-Session nur zum Testen:
 app.use(session({
-  secret: 'supergeheimer-sessionkey',
+  secret: 'tmp',
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 4,
-    sameSite: 'none',
-    secure: true
-  },
-  store: MongoStore.create({ mongoUrl: MONGO_URI })
+  cookie: { sameSite: 'lax', secure: false }
 }));
 
 // ✅ Routen einbinden
@@ -133,7 +140,7 @@ app.use('/api/nachrichten', nachrichtenRoutes);
 app.use('/api', vagUploadRoute);
 
 // ✅ Main API Routes (includes advice and PDF routes)
-app.use('/api', routes);
+app.use('/api', routes); // src/routes/index.js
 
 // ✅ Statische Daten (z. B. JSON-Dateien)
 app.use("/data", express.static("data"));
