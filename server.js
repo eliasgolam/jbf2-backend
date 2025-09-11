@@ -8,7 +8,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const session = require('express-session');
-// const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo');
 
 // ✅ Express-App & HTTP-Server
 const app = express();
@@ -91,21 +91,25 @@ const { requestLogger, errorLogger, logSecurityEvent } = require('./middleware/l
 // Handle OPTIONS quickly
 // app.options('*', cors());
 
-const allowedOrigins = new Set([
+const allowedOrigins = [
   'http://localhost:3000',
-  'https://app.myjbfinanz.ch',
   'https://myjbfinanz.ch',
-]);
+  'https://www.myjbfinanz.ch',
+  'https://api.myjbfinanz.ch',
+];
 
-// Einfache CORS-Konfiguration
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    cb(null, allowedOrigins.includes(origin));
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
 }));
 
 // ✅ Body & Trust Proxy
 app.use(express.json({ limit: '10mb' })); // Limit request size
-app.set('trust proxy', 1);
 
 // ✅ Security Headers
 app.use((req, res, next) => {
@@ -120,13 +124,28 @@ app.use((req, res, next) => {
 // ✅ Request Logging
 app.use(requestLogger);
 
-// ✅ Session-Middleware
-// Temporäre Memory-Session nur zum Testen:
+// ✅ Session-Middleware (Production-Ready)
+const isProd = process.env.NODE_ENV === 'production';
+app.set('trust proxy', 1); // wichtig hinter Render/Proxy
+
 app.use(session({
-  secret: 'tmp',
+  name: 'sid',
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { sameSite: 'lax', secure: false }
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    dbName: process.env.MONGODB_DB_NAME,
+    ttl: 60 * 60 * 8, // 8h
+    autoRemove: 'native',
+  }),
+  cookie: {
+    httpOnly: true,
+    secure: isProd,                 // in Prod (HTTPS) true
+    sameSite: isProd ? 'none' : 'lax', // für Cross-Site (Frontend http / Backend https)
+    // domain: '.myjbfinanz.ch',     // nur setzen, falls Cookie sonst nicht klebt
+    maxAge: 1000 * 60 * 60 * 8,     // 8h
+  }
 }));
 
 // ✅ Routen einbinden
