@@ -2,7 +2,7 @@ console.log('>>> LOADED server.js from', __dirname, 'cwd=', process.cwd());
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
@@ -43,8 +43,23 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ Database Configuration
-const { initializeDatabase, isUsingMongo } = require('./src/config/database');
+async function initDb() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.warn('⚠️  No MONGODB_URI set. Falling back to in-memory DB.');
+    return false;
+  }
+  try {
+    await mongoose.connect(uri, {
+      dbName: process.env.MONGODB_DB_NAME,
+    });
+    console.log('✅ MongoDB connected:', mongoose.connection.db?.databaseName || '(unknown)');
+    return true;
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message);
+    return false;
+  }
+}
 
 // ✅ Security & Logging
 const { requestLogger, errorLogger, logSecurityEvent } = require('./middleware/logging');
@@ -165,17 +180,24 @@ app.use((err, _req, res, _next) => {
 // ✅ PDF Generation enabled for normal development
 process.env.PDF_ENABLED = 'true';
 
-// ✅ Server starten (Express + WebSocket)
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, async () => {
-  console.log(`✅ Server + WebSocket läuft auf Port ${PORT}`);
-  console.log(`✅ PDF Generation: ${process.env.PDF_ENABLED}`);
-  
-  // Initialize database
-  try {
-    await initializeDatabase();
-    console.log(`✅ Database: ${isUsingMongo() ? 'MongoDB' : 'In-Memory'}`);
-  } catch (error) {
-    console.error('❌ Database initialization failed:', error);
+(async () => {
+  const dbOk = await initDb();
+
+  if (dbOk) {
+    console.log('✅ Database: MongoDB');
+  } else {
+    console.log('✅ Database: In-Memory'); // Nur wenn keine DB verbunden ist!
+    // Falls ihr explizit In-Memory Stores initialisiert, dann hier.
   }
-});
+
+  // WICHTIG: Routen erst nach DB-Init mounten
+  // Beispiel:
+  // app.use('/api/kunden', kundenRouter);
+  // app.use('/api/nachrichten', nachrichtenRouter);
+
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`✅ Server + WebSocket läuft auf Port ${PORT}`);
+    console.log(`✅ PDF Generation: ${process.env.SMOKE_PDF ? 'true' : 'true'}`);
+  });
+})();
