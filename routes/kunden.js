@@ -151,6 +151,54 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
       { new: true }
     );
 
+    // ✅ Speichere auch in Advice-Session für PDF-Generierung
+    if (toolname === 'budget') {
+      const { getRepository } = require('../src/config/database');
+      const adviceRepository = getRepository();
+      
+      // Berechne Budget-Summen für Advice-Session
+      const { values, customRows } = req.body;
+      const categories = [
+        { name: 'einkommen', type: 'income' },
+        { name: 'ausgaben', type: 'expense' }
+      ];
+      
+      let income = 0;
+      let expenses = 0;
+      
+      // Berechne Einkommen und Ausgaben aus values
+      Object.keys(values || {}).forEach(catName => {
+        const cat = categories.find(c => c.name === catName);
+        if (cat) {
+          const v = values[catName] || {};
+          const sum = (v.kunde || 0) + (v.familie || 0);
+          if (cat.type === 'income') income += sum;
+          else expenses += sum;
+        }
+      });
+      
+      // Füge customRows hinzu
+      if (customRows) {
+        customRows.forEach(row => {
+          const sum = (row.kunde || 0) + (row.familie || 0);
+          if (row.type === 'income') income += sum;
+          else expenses += sum;
+        });
+      }
+      
+      const budgetData = {
+        income,
+        expenses,
+        available: income - expenses,
+        savings: 0, // Wird später vom Sparrechner gesetzt
+        values,
+        customRows
+      };
+      
+      await adviceRepository.update(kundenId, { budget: budgetData });
+      console.log('[SESSION] updated', kundenId, ['budget']);
+    }
+
     res.status(200).json(updatedKunde);
   } catch (err) {
     console.error('❌ Fehler beim Speichern der Tool-Daten:', err);
