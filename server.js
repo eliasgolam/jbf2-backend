@@ -128,17 +128,12 @@ app.use(requestLogger);
 const isProd = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1); // wichtig hinter Render/Proxy
 
-app.use(session({
+// Session configuration - use MongoDB only if enabled
+const sessionConfig = {
   name: 'sid',
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    dbName: process.env.MONGODB_DB_NAME,
-    ttl: 60 * 60 * 8, // 8h
-    autoRemove: 'native',
-  }),
   cookie: {
     httpOnly: true,
     secure: isProd,                 // in Prod (HTTPS) true
@@ -146,7 +141,22 @@ app.use(session({
     // domain: '.myjbfinanz.ch',     // nur setzen, falls Cookie sonst nicht klebt
     maxAge: 1000 * 60 * 60 * 8,     // 8h
   }
-}));
+};
+
+// Only use MongoDB store if USE_MONGO is true
+if (process.env.USE_MONGO === 'true' && process.env.MONGODB_URI) {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    dbName: process.env.MONGODB_DB_NAME,
+    ttl: 60 * 60 * 8, // 8h
+    autoRemove: 'native',
+  });
+  console.log('📦 Using MongoDB session store');
+} else {
+  console.log('💾 Using in-memory session store');
+}
+
+app.use(session(sessionConfig));
 
 // ✅ Routen einbinden
 const sessionRoutes = require('./routes/session');

@@ -315,6 +315,34 @@ function buildExecutiveSummary(session) {
  * @returns {Promise<Object>} PDF-ready DTO
  */
 async function buildPdfDto(session) {
+  console.log('[PDF] dto input', {
+    hasBudget: !!session?.budget,
+    hasSavingsPlanner: !!session?.savingsPlanner,
+    hasPension: !!session?.pension,
+    hasHealth: !!session?.health,
+    hasProperty: !!session?.property,
+    hasChildren: !!session?.children,
+  });
+  
+  // Build each section separately and log present flags
+  const budgetSec = buildBudgetSection(session.budget);
+  console.log('[PDF] budget.present', budgetSec?.present);
+  
+  const savingsSec = await buildSavingsSection(session.savingsPlanner);
+  console.log('[PDF] savings.present', savingsSec?.present);
+  
+  const pensionSec = buildPensionSection(session.pension);
+  console.log('[PDF] pension.present', pensionSec?.present);
+  
+  const healthSec = buildHealthSection(session.health);
+  console.log('[PDF] health.present', healthSec?.present);
+  
+  const propertySec = buildPropertySection(session.property);
+  console.log('[PDF] property.present', propertySec?.present);
+  
+  const childrenSec = buildChildrenSection(session.children);
+  console.log('[PDF] children.present', childrenSec?.present);
+  
   return {
     meta: {
       clientId: session.meta?.clientId || 'Unknown',
@@ -330,12 +358,12 @@ async function buildPdfDto(session) {
     followUpTiming: session.followUpTiming || '',
     executiveSummary: buildExecutiveSummary(session),
     sections: {
-      budget: buildBudgetSection(session.budget),
-      savings: await buildSavingsSection(session.savingsPlanner),
-      pension: buildPensionSection(session.pension),
-      health: buildHealthSection(session.health),
-      property: buildPropertySection(session.property),
-      children: buildChildrenSection(session.children)
+      budget: budgetSec,
+      savings: savingsSec,
+      pension: pensionSec,
+      health: healthSec,
+      property: propertySec,
+      children: childrenSec
     }
   };
 }

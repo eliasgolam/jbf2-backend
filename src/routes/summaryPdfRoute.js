@@ -43,6 +43,11 @@ if (process.env.SMOKE_PDF === '1') {
 router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Enhanced logging for debugging
+    console.log('[PDF] route hit, params.id=', req.params.id);
+    console.log('[PDF] session.kundenId=', req.session?.kundenId);
+    console.log('[PDF] body keys=', Object.keys(req.body || {}));
     console.log('[PDF] start', { id: req.params.id });
 
     // Optional smoke test: enable by setting SMOKE_PDF=1 in env
@@ -79,6 +84,8 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     // Load session from repository
     console.log('[PDF] loading session from repository');
     const adviceRepository = getRepository();
+    console.log('[PDF] repository type:', adviceRepository.constructor?.name || 'unknown');
+    
     const session = await adviceRepository.get(id);
     if (!session) {
       console.log('[PDF] session not found', { id });
@@ -86,7 +93,40 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
         message: 'Session not found' 
       });
     }
-    console.log('[PDF] session loaded', { sessionId: id, hasData: !!session });
+    
+    // Verifizieren: Session hat Tool-Daten vor PDF
+    console.log('[PDF] session keys', Object.keys(session || {}));
+    console.log('[PDF] sections present?', {
+      budget: !!session?.budget,
+      savingsPlanner: !!session?.savingsPlanner,
+      pension: !!session?.pension,
+      health: !!session?.health,
+      property: !!session?.property,
+      children: !!session?.children,
+    });
+    
+    console.log('[PDF] session loaded', { 
+      sessionId: id, 
+      hasData: !!session,
+      sessionKeys: Object.keys(session || {}),
+      hasBudget: !!session?.budget,
+      hasSavings: !!session?.savingsPlanner,
+      hasPension: !!session?.pension,
+      hasHealth: !!session?.health,
+      hasProperty: !!session?.property,
+      hasChildren: !!session?.children
+    });
+    
+    console.log('[PDF] session sections', {
+      budget: !!session?.budget,
+      savingsPlanner: !!session?.savingsPlanner,
+      pension: !!session?.pension,
+      health: !!session?.health,
+      property: !!session?.property,
+      children: !!session?.children,
+      selectedTopics: session?.selectedTopics?.length || 0,
+      closedTopics: session?.closedTopics?.length || 0,
+    });
 
     // Build PDF DTO
     console.log('[PDF] building PDF DTO');
