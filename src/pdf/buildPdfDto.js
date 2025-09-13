@@ -4,6 +4,14 @@
  */
 
 const { buildSavingsChart } = require('./charts/savingsChart');
+const { loadToolsForCustomer } = require('../services/toolLoader');
+
+/**
+ * Safe number conversion with fallback to 0
+ * @param {any} n - Value to convert to number
+ * @returns {number} Safe number or 0
+ */
+const safe = (n) => (typeof n === 'number' && isFinite(n) ? n : 0);
 
 /**
  * Format currency for Swiss locale
@@ -51,10 +59,10 @@ function formatDate(date) {
 function buildBudgetSection(budget) {
   if (!budget) return { present: false };
 
-  const income = budget.income || budget.totals?.income || 0;
-  const expenses = budget.expenses || budget.totals?.expense || 0;
+  const income = safe(budget.income ?? budget.totals?.income ?? budget.summeEinnahmen ?? budget.totalIncome);
+  const expenses = safe(budget.expenses ?? budget.totals?.expense ?? budget.summeAusgaben ?? budget.totalExpenses);
   const available = income - expenses;
-  const savings = budget.savings || 0;
+  const savings = safe(budget.savings ?? budget.sparquote ?? budget.savingsRate);
 
   return {
     present: true,
@@ -64,8 +72,8 @@ function buildBudgetSection(budget) {
       expenses,
       available,
       savings,
-      expenseRatio: income > 0 ? (expenses / income) * 100 : 0,
-      availableRatio: income > 0 ? (available / income) * 100 : 0
+      expenseRatio: income > 0 ? Number(((expenses / income) * 100).toFixed(1)) : 0,
+      availableRatio: income > 0 ? Number(((available / income) * 100).toFixed(1)) : 0
     },
     notes: budget.notes || ''
   };
@@ -79,11 +87,11 @@ function buildBudgetSection(budget) {
 async function buildSavingsSection(savings) {
   if (!savings) return { present: false };
 
-  const startCapital = savings.startCapital || 0;
-  const monthlyRate = savings.monthlyRate || 0;
-  const ratePercent = savings.ratePercent || 0;
-  const years = savings.years || 0;
-  const targetAmount = savings.zielbetrag || savings.targetAmount || 0;
+  const startCapital = safe(savings.startCapital ?? savings.startkapital ?? savings.anfangskapital);
+  const monthlyRate = safe(savings.monthlyRate ?? savings.monatlicheRate ?? savings.monatlicherBetrag);
+  const ratePercent = safe(savings.ratePercent ?? savings.zinssatz ?? savings.interestRate);
+  const years = safe(savings.years ?? savings.jahre ?? savings.laufzeit);
+  const targetAmount = safe(savings.zielbetrag ?? savings.targetAmount ?? savings.ziel ?? savings.goal);
 
   // Generate schedule if not present
   let schedule = savings.schedule || [];
@@ -91,18 +99,24 @@ async function buildSavingsSection(savings) {
     schedule = generateSavingsSchedule(startCapital, monthlyRate, ratePercent, years);
   }
 
+  const endValue = schedule.length > 0 ? schedule[schedule.length - 1].yearEndCapital : startCapital;
+  const totalInvested = startCapital + (monthlyRate * 12 * years);
+
   const section = {
     present: true,
     title: 'Sparrechner',
     keyFigures: {
-      startCapital,
-      monthlyRate,
-      ratePercent,
-      years,
-      targetAmount,
-      endAmount: schedule.length > 0 ? schedule[schedule.length - 1].yearEndCapital : startCapital
+      endValue: safe(endValue),
+      years: safe(years),
+      rate: safe(ratePercent),
+      monthlySaving: safe(monthlyRate),
+      totalInvested: safe(totalInvested),
+      startCapital: safe(startCapital),
+      targetAmount: safe(targetAmount)
     },
-    schedule,
+    tables: {
+      schedule: schedule || []
+    },
     notes: savings.notes || ''
   };
 
@@ -159,23 +173,23 @@ function generateSavingsSchedule(startCapital, monthlyRate, ratePercent, years) 
 function buildPensionSection(pension) {
   if (!pension) return { present: false };
 
-  const pillar3a = pension.saeule3a || pension.pillar3a || 0;
-  const pillar3b = pension.saeule3b || pension.pillar3b || 0;
-  const lifeInsurance = pension.lebensversicherung || pension.lifeInsurance || 0;
+  const pillar3a = safe(pension.saeule3a ?? pension.pillar3a ?? pension.saeule3A ?? pension.pillar3A);
+  const pillar3b = safe(pension.saeule3b ?? pension.pillar3b ?? pension.saeule3B ?? pension.pillar3B);
+  const lifeInsurance = safe(pension.lebensversicherung ?? pension.lifeInsurance ?? pension.lebensversicherung ?? pension.life);
   const total = pillar3a + pillar3b + lifeInsurance;
 
   return {
     present: true,
     title: 'Vorsorge-Planung',
     keyFigures: {
-      pillar3a,
-      pillar3b,
-      lifeInsurance,
-      total,
-      pillar3aMonthly: pillar3a / 12,
-      pillar3bMonthly: pillar3b / 12,
-      lifeInsuranceMonthly: lifeInsurance / 12,
-      totalMonthly: total / 12,
+      pillar3a: safe(pillar3a),
+      pillar3b: safe(pillar3b),
+      lifeInsurance: safe(lifeInsurance),
+      total: safe(total),
+      pillar3aMonthly: safe(pillar3a / 12),
+      pillar3bMonthly: safe(pillar3b / 12),
+      lifeInsuranceMonthly: safe(lifeInsurance / 12),
+      totalMonthly: safe(total / 12),
       pillar3aStatus: pillar3a > 0 ? 'Aktiv' : 'Inaktiv',
       pillar3bStatus: pillar3b > 0 ? 'Aktiv' : 'Inaktiv',
       lifeInsuranceStatus: lifeInsurance > 0 ? 'Aktiv' : 'Inaktiv'
@@ -192,20 +206,23 @@ function buildPensionSection(pension) {
 function buildHealthSection(health) {
   if (!health) return { present: false };
 
-  const premium = health.praemie || health.premium || 0;
-  const franchise = health.franchise || 0;
-  const deductible = health.selbstbehalt || health.deductible || 0;
+  const premium = safe(health.praemie ?? health.premium ?? health.monatlichePraemie ?? health.monthlyPremium);
+  const franchise = safe(health.franchise ?? health.franchise ?? health.franchise);
+  const deductible = safe(health.selbstbehalt ?? health.deductible ?? health.selbstbehalt ?? health.deductible);
+  const providerCount = safe(health.providerCount ?? health.versichererAnzahl ?? health.insuranceCount ?? 1);
 
   return {
     present: true,
     title: 'Gesundheitsversicherung',
     keyFigures: {
-      premiumRegion: health.praemienregion || health.premiumRegion || 'Unbekannt',
-      franchise,
-      premium,
-      deductible,
-      annualPremium: premium * 12,
-      maxDeductible: franchise + deductible
+      premiumAdult: safe(premium),
+      premiumChild: safe(premium * 0.5), // Estimate 50% for children
+      deductible: safe(deductible),
+      providerCount: safe(providerCount),
+      yearlyCost: safe(premium * 12),
+      premiumRegion: health.praemienregion ?? health.premiumRegion ?? health.region ?? 'Unbekannt',
+      franchise: safe(franchise),
+      maxDeductible: safe(franchise + deductible)
     },
     notes: health.notes || ''
   };
@@ -219,24 +236,29 @@ function buildHealthSection(health) {
 function buildPropertySection(property) {
   if (!property) return { present: false };
 
-  const propertyValue = property.propertyValue || 0;
-  const equity = property.equity || 0;
-  const mortgage = property.mortgage || propertyValue - equity;
-  const monthlyPayment = property.monthlyPayment || 0;
-  const affordable = property.affordable || false;
+  const propertyValue = safe(property.propertyValue ?? property.immobilienwert ?? property.houseValue ?? property.value);
+  const equity = safe(property.equity ?? property.eigenkapital ?? property.eigenkapital ?? property.downPayment);
+  const mortgage = safe(property.mortgage ?? property.hypothek ?? property.hypothek ?? (propertyValue - equity));
+  const monthlyPayment = safe(property.monthlyPayment ?? property.monatlicheRate ?? property.monatlicheZahlung ?? property.monthlyCost);
+  const affordable = property.affordable ?? property.tragbar ?? property.affordable ?? false;
+  const interestRate = safe(property.interestRate ?? property.zinssatz ?? property.interest ?? 2.5); // Default 2.5%
+  const amortization = safe(property.amortization ?? property.amortisation ?? property.amortization ?? 0);
 
   return {
     present: true,
     title: 'Immobilien-Planung',
     keyFigures: {
-      propertyValue,
-      equity,
-      mortgage,
-      monthlyPayment,
-      affordable,
-      equityRatio: propertyValue > 0 ? (equity / propertyValue) * 100 : 0,
-      mortgageRatio: propertyValue > 0 ? (mortgage / propertyValue) * 100 : 0,
-      requiredIncome: monthlyPayment > 0 ? monthlyPayment * 3 : 0 // 1/3 rule
+      propertyValue: safe(propertyValue),
+      mortgage: safe(mortgage),
+      interestRate: safe(interestRate),
+      amortization: safe(amortization),
+      monthlyCost: safe(monthlyPayment),
+      affordabilityRatio: propertyValue > 0 ? safe((monthlyPayment * 12) / propertyValue * 100) : 0,
+      equity: safe(equity),
+      affordable: Boolean(affordable),
+      equityRatio: propertyValue > 0 ? safe((equity / propertyValue) * 100) : 0,
+      mortgageRatio: propertyValue > 0 ? safe((mortgage / propertyValue) * 100) : 0,
+      requiredIncome: safe(monthlyPayment * 3) // 1/3 rule
     },
     notes: property.notes || ''
   };
@@ -250,30 +272,38 @@ function buildPropertySection(property) {
 function buildChildrenSection(children) {
   if (!children) return { present: false };
 
-  const count = children.anzahl || children.count || 0;
-  const monthlyCosts = children.kosten || children.monthlyCosts || 0;
-  const monthlyContribution = children.beitrag || children.monthlyContribution || 0;
-  const ageGroups = children.altersgruppen || children.ageGroups || [];
+  const count = safe(children.anzahl ?? children.count ?? children.kinderAnzahl ?? children.numberOfChildren);
+  const monthlyCosts = safe(children.kosten ?? children.monthlyCosts ?? children.monatlicheKosten ?? children.monthlyCost);
+  const monthlyContribution = safe(children.beitrag ?? children.monthlyContribution ?? children.monatlicherBeitrag ?? children.contribution);
+  const ageGroups = children.altersgruppen ?? children.ageGroups ?? children.ageGroups ?? [];
+  const monthlyCostPerChild = count > 0 ? monthlyCosts / count : 0;
+  const yearlyCost = monthlyCosts * 12;
+  const educationFund = monthlyCosts * 0.2 * 12; // 20% for education
 
   return {
     present: true,
     title: 'Kinder-Planung',
     keyFigures: {
-      count,
-      monthlyCosts,
-      monthlyContribution,
-      annualCosts: monthlyCosts * 12,
-      careCosts: monthlyCosts * 0.6, // Estimate 60% for care
-      careCostsAnnual: monthlyCosts * 0.6 * 12,
-      educationCosts: monthlyCosts * 0.2, // Estimate 20% for education
-      educationCostsAnnual: monthlyCosts * 0.2 * 12,
-      clothingCosts: monthlyCosts * 0.2, // Estimate 20% for clothing
-      clothingCostsAnnual: monthlyCosts * 0.2 * 12,
+      monthlyCostPerChild: safe(monthlyCostPerChild),
+      childrenCount: safe(count),
+      yearlyCost: safe(yearlyCost),
+      educationFund: safe(educationFund),
+      monthlyCosts: safe(monthlyCosts),
+      monthlyContribution: safe(monthlyContribution),
+      annualCosts: safe(yearlyCost),
+      careCosts: safe(monthlyCosts * 0.6), // Estimate 60% for care
+      careCostsAnnual: safe(monthlyCosts * 0.6 * 12),
+      educationCosts: safe(monthlyCosts * 0.2), // Estimate 20% for education
+      educationCostsAnnual: safe(monthlyCosts * 0.2 * 12),
+      clothingCosts: safe(monthlyCosts * 0.2), // Estimate 20% for clothing
+      clothingCostsAnnual: safe(monthlyCosts * 0.2 * 12)
+    },
+    tables: {
       ageGroups: ageGroups.map(group => ({
         ageGroup: group,
         count: 1,
-        monthlyCosts: monthlyCosts / count,
-        annualCosts: (monthlyCosts / count) * 12
+        monthlyCosts: safe(monthlyCostPerChild),
+        annualCosts: safe(monthlyCostPerChild * 12)
       }))
     },
     notes: children.notes || ''
@@ -312,10 +342,11 @@ function buildExecutiveSummary(session) {
 /**
  * Build PDF DTO from AdviceSession
  * @param {Object} session - AdviceSession data
+ * @param {Object} options - Options including selectedTopics
  * @returns {Promise<Object>} PDF-ready DTO
  */
-async function buildPdfDto(session) {
-  console.log('[PDF] dto input', {
+async function buildPdfDto(session, options = {}) {
+  console.log('[PDF] dto input (original session)', {
     hasBudget: !!session?.budget,
     hasSavingsPlanner: !!session?.savingsPlanner,
     hasPension: !!session?.pension,
@@ -323,25 +354,75 @@ async function buildPdfDto(session) {
     hasProperty: !!session?.property,
     hasChildren: !!session?.children,
   });
+
+  // Optionaler Fallback-Loader für fehlende Tool-Daten
+  const kundenId = session?.customerId || session?.meta?.clientId || session?.kundenId;
+  const needs = { 
+    budget: !session?.budget, 
+    savingsPlanner: !session?.savingsPlanner, 
+    pension: !session?.pension, 
+    health: !session?.health, 
+    property: !session?.property, 
+    children: !session?.children 
+  };
+  
+  let fallback = {};
+  if (kundenId && Object.values(needs).some(Boolean)) {
+    fallback = await loadToolsForCustomer(kundenId);
+    console.log('[PDF] fallback tools', Object.fromEntries(Object.entries(fallback).map(([k,v])=>[k, !!v])));
+  }
+  
+  const merged = {
+    budget: session?.budget ?? fallback.budget ?? null,
+    savingsPlanner: session?.savingsPlanner ?? fallback.savings ?? null,
+    pension: session?.pension ?? fallback.pension ?? null,
+    health: session?.health ?? fallback.health ?? null,
+    property: session?.property ?? fallback.property ?? null,
+    children: session?.children ?? fallback.children ?? null,
+  };
+  
+  console.log('[PDF] dto input (merged data)', { 
+    hasBudget: !!merged.budget, 
+    hasSavingsPlanner: !!merged.savingsPlanner, 
+    hasPension: !!merged.pension, 
+    hasHealth: !!merged.health, 
+    hasProperty: !!merged.property, 
+    hasChildren: !!merged.children 
+  });
   
   // Build each section separately and log present flags
-  const budgetSec = buildBudgetSection(session.budget);
-  console.log('[PDF] budget.present', budgetSec?.present);
+  const budgetSec = buildBudgetSection(merged.budget);
+  const savingsSec = await buildSavingsSection(merged.savingsPlanner);
+  const pensionSec = buildPensionSection(merged.pension);
+  const healthSec = buildHealthSection(merged.health);
+  const propertySec = buildPropertySection(merged.property);
+  const childrenSec = buildChildrenSection(merged.children);
   
-  const savingsSec = await buildSavingsSection(session.savingsPlanner);
-  console.log('[PDF] savings.present', savingsSec?.present);
+  // Apply selectedTopics filter
+  const selected = new Set(options?.selectedTopics || session?.selectedTopics || []);
+  const allow = (code) => selected.size === 0 || selected.has(code);
   
-  const pensionSec = buildPensionSection(session.pension);
-  console.log('[PDF] pension.present', pensionSec?.present);
+  console.log('[PDF] selectedTopics filter', {
+    selectedTopics: Array.from(selected),
+    allowAll: selected.size === 0
+  });
   
-  const healthSec = buildHealthSection(session.health);
-  console.log('[PDF] health.present', healthSec?.present);
+  // Apply filter to sections
+  budgetSec.present = budgetSec.present && allow('budget');
+  savingsSec.present = savingsSec.present && allow('savings');
+  pensionSec.present = pensionSec.present && allow('pension');
+  healthSec.present = healthSec.present && allow('health');
+  propertySec.present = propertySec.present && allow('property');
+  childrenSec.present = childrenSec.present && allow('children');
   
-  const propertySec = buildPropertySection(session.property);
-  console.log('[PDF] property.present', propertySec?.present);
-  
-  const childrenSec = buildChildrenSection(session.children);
-  console.log('[PDF] children.present', childrenSec?.present);
+  console.log('[PDF] section present flags (after filter)', {
+    'budget.present': budgetSec?.present, 
+    'pension.present': pensionSec?.present, 
+    'savings.present': savingsSec?.present,
+    'health.present': healthSec?.present,
+    'property.present': propertySec?.present,
+    'children.present': childrenSec?.present
+  });
   
   return {
     meta: {

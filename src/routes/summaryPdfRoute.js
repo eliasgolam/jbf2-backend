@@ -48,6 +48,7 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     console.log('[PDF] route hit, params.id=', req.params.id);
     console.log('[PDF] session.kundenId=', req.session?.kundenId);
     console.log('[PDF] body keys=', Object.keys(req.body || {}));
+    console.log('[PDF] selectedTopics=', req.body?.selectedTopics);
     console.log('[PDF] start', { id: req.params.id });
 
     // Optional smoke test: enable by setting SMOKE_PDF=1 in env
@@ -96,13 +97,13 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     
     // Verifizieren: Session hat Tool-Daten vor PDF
     console.log('[PDF] session keys', Object.keys(session || {}));
-    console.log('[PDF] sections present?', {
-      budget: !!session?.budget,
-      savingsPlanner: !!session?.savingsPlanner,
+    console.log('[PDF] session sections', {
+      budget: !!session?.budget, 
+      savingsPlanner: !!session?.savingsPlanner, 
       pension: !!session?.pension,
-      health: !!session?.health,
-      property: !!session?.property,
-      children: !!session?.children,
+      health: !!session?.health, 
+      property: !!session?.property, 
+      children: !!session?.children
     });
     
     console.log('[PDF] session loaded', { 
@@ -128,10 +129,14 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
       closedTopics: session?.closedTopics?.length || 0,
     });
 
-    // Build PDF DTO
+    // Build PDF DTO with selectedTopics
     console.log('[PDF] building PDF DTO');
-    const pdfDto = await buildPdfDto(session);
-    console.log('[PDF] PDF DTO built', { hasData: !!pdfDto });
+    const options = {
+      selectedTopics: req.body?.selectedTopics || session?.selectedTopics || [],
+      notes: req.body?.notes || session?.notes || ''
+    };
+    const pdfDto = await buildPdfDto(session, options);
+    console.log('[PDF] PDF DTO built', { hasData: !!pdfDto, selectedTopics: options.selectedTopics });
 
     // Generate PDF with performance logging
     console.log('[PDF] generating PDF');

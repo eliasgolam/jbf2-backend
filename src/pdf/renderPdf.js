@@ -61,31 +61,114 @@ function loadPartials() {
  * Register Handlebars helpers
  */
 function registerHelpers() {
-  // Currency formatter (CHF)
+  // Currency formatter (CHF) - robust with fallbacks
   handlebars.registerHelper('formatCurrency', function(amount) {
-    if (typeof amount !== 'number') return 'CHF 0.00';
-    return `CHF ${amount.toLocaleString('de-CH', { 
+    const n = Number(amount);
+    if (!isFinite(n)) return 'CHF 0.00';
+    return n.toLocaleString('de-CH', { 
+      style: 'currency', 
+      currency: 'CHF',
       minimumFractionDigits: 2, 
       maximumFractionDigits: 2 
-    })}`;
+    });
   });
 
-  // Percentage formatter
+  // Percentage formatter - robust with fallbacks
   handlebars.registerHelper('formatPercentage', function(value) {
-    if (typeof value !== 'number') return '0%';
-    return `${value.toFixed(1)}%`;
+    const n = Number(value);
+    if (!isFinite(n)) return '0.0%';
+    return `${n.toFixed(1)}%`;
   });
 
-  // Date formatter (de-CH)
+  // Alias for formatPercentage (some templates use formatPercent)
+  handlebars.registerHelper('formatPercent', function(value) {
+    const n = Number(value);
+    if (!isFinite(n)) return '0.0%';
+    return `${n.toFixed(1)}%`;
+  });
+
+  // Date formatter (de-CH) - robust with fallbacks
   handlebars.registerHelper('formatDate', function(date) {
     if (!date) return '';
     const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
     return d.toLocaleDateString('de-CH', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit'
     });
   });
+
+  // Number formatter - for general numbers
+  handlebars.registerHelper('formatNumber', function(value, decimals = 0) {
+    const n = Number(value);
+    if (!isFinite(n)) return '0';
+    return n.toLocaleString('de-CH', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  });
+
+  // Boolean formatter - for yes/no display
+  handlebars.registerHelper('formatBoolean', function(value, trueText = 'Ja', falseText = 'Nein') {
+    return value ? trueText : falseText;
+  });
+
+  // Conditional helper - for showing/hiding content
+  handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+  });
+
+  // Math helpers
+  handlebars.registerHelper('add', function(a, b) {
+    return Number(a) + Number(b);
+  });
+
+  handlebars.registerHelper('subtract', function(a, b) {
+    return Number(a) - Number(b);
+  });
+
+  handlebars.registerHelper('multiply', function(a, b) {
+    return Number(a) * Number(b);
+  });
+
+  handlebars.registerHelper('divide', function(a, b) {
+    const divisor = Number(b);
+    return divisor !== 0 ? Number(a) / divisor : 0;
+  });
+
+  // String helpers
+  handlebars.registerHelper('uppercase', function(str) {
+    return typeof str === 'string' ? str.toUpperCase() : '';
+  });
+
+  handlebars.registerHelper('lowercase', function(str) {
+    return typeof str === 'string' ? str.toLowerCase() : '';
+  });
+
+  // Array helpers
+  handlebars.registerHelper('length', function(array) {
+    return Array.isArray(array) ? array.length : 0;
+  });
+
+  // Debug helper
+  handlebars.registerHelper('debug', function(value) {
+    console.log('Handlebars Debug:', value);
+    return '';
+  });
+
+  // Test helper to verify all helpers are working
+  handlebars.registerHelper('testHelpers', function() {
+    console.log('[PDF] Testing Handlebars helpers...');
+    const testCurrency = handlebars.helpers.formatCurrency(1234.56);
+    const testPercentage = handlebars.helpers.formatPercentage(12.34);
+    const testDate = handlebars.helpers.formatDate(new Date());
+    console.log('[PDF] Helper test results:', { testCurrency, testPercentage, testDate });
+    return '';
+  });
+
+  // Log helper registration
+  console.log('[PDF] Handlebars helpers registered:', Object.keys(handlebars.helpers));
 }
 
 /**
@@ -158,8 +241,22 @@ async function generatePdf(sessionData) {
     loadPartials();
     registerHelpers();
 
+    // Debug: Log template data before rendering
+    console.log('[PDF] template keys', Object.keys(sessionData?.sections || {}));
+    console.log('[PDF] template present flags', {
+      budget: sessionData.sections?.budget?.present,
+      pension: sessionData.sections?.pension?.present,
+      savings: sessionData.sections?.savings?.present,
+      health: sessionData.sections?.health?.present,
+      property: sessionData.sections?.property?.present,
+      children: sessionData.sections?.children?.present,
+    });
+
     // Render master template
     const html = renderTemplate('master', sessionData);
+    
+    // Debug: Log HTML snippet before PDF conversion
+    console.log('[PDF] HTML snippet (first 500 chars):', html.substring(0, 500));
 
     // Convert to PDF
     const pdfBuffer = await htmlToPdf(html);

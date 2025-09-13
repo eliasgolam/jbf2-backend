@@ -138,27 +138,27 @@
     {{/if}}
     
     {{#if sections.budget.present}}
-        {{> budget}}
+        {{> budget sections.budget}}
     {{/if}}
     
     {{#if sections.savings.present}}
-        {{> savings}}
+        {{> savings sections.savings}}
     {{/if}}
     
     {{#if sections.pension.present}}
-        {{> pension}}
+        {{> pension sections.pension}}
     {{/if}}
     
     {{#if sections.health.present}}
-        {{> health}}
+        {{> health sections.health}}
     {{/if}}
     
     {{#if sections.property.present}}
-        {{> property}}
+        {{> property sections.property}}
     {{/if}}
     
     {{#if sections.children.present}}
-        {{> children}}
+        {{> children sections.children}}
     {{/if}}
     
     {{> appendix}}

@@ -152,10 +152,12 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     );
 
     // ✅ Speichere auch in Advice-Session für PDF-Generierung
+    const { getRepository } = require('../src/config/database');
+    const adviceRepository = getRepository();
+    
+    let sessionPatch = {};
+    
     if (toolname === 'budget') {
-      const { getRepository } = require('../src/config/database');
-      const adviceRepository = getRepository();
-      
       // Berechne Budget-Summen für Advice-Session
       const { values, customRows } = req.body;
       const categories = [
@@ -186,17 +188,67 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
         });
       }
       
-      const budgetData = {
+      sessionPatch.budget = {
         income,
         expenses,
         available: income - expenses,
         savings: 0, // Wird später vom Sparrechner gesetzt
         values,
-        customRows
+        customRows,
+        notes: req.body.notes || ''
       };
-      
-      await adviceRepository.update(kundenId, { budget: budgetData });
-      console.log('[SESSION] updated', kundenId, ['budget']);
+    } else if (toolname === 'savingsPlanner' || toolname === 'sparrechner' || toolname === 'sparplan') {
+      sessionPatch.savingsPlanner = {
+        startCapital: req.body.startCapital || req.body.startkapital || 0,
+        monthlyRate: req.body.monthlyRate || req.body.monatlicheRate || 0,
+        ratePercent: req.body.ratePercent || req.body.zinssatz || 0,
+        years: req.body.years || req.body.jahre || 0,
+        targetAmount: req.body.targetAmount || req.body.zielbetrag || 0,
+        notes: req.body.notes || ''
+      };
+    } else if (toolname === 'pension' || toolname === 'vorsorge' || toolname === 'pensionsplan') {
+      sessionPatch.pension = {
+        saeule3a: req.body.saeule3a || req.body.pillar3a || 0,
+        saeule3b: req.body.saeule3b || req.body.pillar3b || 0,
+        lebensversicherung: req.body.lebensversicherung || req.body.lifeInsurance || 0,
+        notes: req.body.notes || ''
+      };
+    } else if (toolname === 'health' || toolname === 'gesundheit' || toolname === 'ivrechner' || toolname === 'krankenkasse') {
+      sessionPatch.health = {
+        praemie: req.body.praemie || req.body.premium || 0,
+        franchise: req.body.franchise || 0,
+        selbstbehalt: req.body.selbstbehalt || req.body.deductible || 0,
+        praemienregion: req.body.praemienregion || req.body.premiumRegion || 'Unbekannt',
+        notes: req.body.notes || ''
+      };
+    } else if (toolname === 'property' || toolname === 'immobilie' || toolname === 'tragbarkeit' || toolname === 'tragbarkeitsrechner') {
+      sessionPatch.property = {
+        propertyValue: req.body.propertyValue || req.body.immobilienwert || 0,
+        equity: req.body.equity || req.body.eigenkapital || 0,
+        mortgage: req.body.mortgage || req.body.hypothek || 0,
+        monthlyPayment: req.body.monthlyPayment || req.body.monatlicheRate || 0,
+        interestRate: req.body.interestRate || req.body.zinssatz || 2.5,
+        amortization: req.body.amortization || req.body.amortisation || 0,
+        affordable: req.body.affordable || req.body.tragbar || false,
+        notes: req.body.notes || ''
+      };
+    } else if (toolname === 'children' || toolname === 'kinder' || toolname === 'kinderplanung') {
+      sessionPatch.children = {
+        anzahl: req.body.anzahl || req.body.count || 0,
+        kosten: req.body.kosten || req.body.monthlyCosts || 0,
+        beitrag: req.body.beitrag || req.body.monthlyContribution || 0,
+        altersgruppen: req.body.altersgruppen || req.body.ageGroups || [],
+        notes: req.body.notes || ''
+      };
+    } else if (toolname === 'wuensche' || toolname === 'empfehlungen') {
+      // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
+      console.log(`[SESSION] Tool ${toolname} gespeichert, aber keine PDF-Section definiert`);
+    }
+    
+    // Speichere in Advice-Session falls Patch vorhanden
+    if (Object.keys(sessionPatch).length > 0) {
+      await adviceRepository.update(kundenId, sessionPatch);
+      console.log('[SESSION] updated', kundenId, Object.keys(sessionPatch));
     }
 
     res.status(200).json(updatedKunde);

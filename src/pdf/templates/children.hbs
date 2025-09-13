@@ -1,26 +1,29 @@
+{{#if present}}
 <div class="section">
-    <h2 class="section-title">Kinder-Planung</h2>
+    <h2 class="section-title">{{title}}</h2>
     
+    {{#if keyFigures}}
     <div class="key-figures">
         <div class="key-figure">
             <div class="key-figure-label">Anzahl Kinder</div>
-            <div class="key-figure-value">{{sections.children.keyFigures.count}}</div>
+            <div class="key-figure-value">{{keyFigures.count}}</div>
         </div>
         <div class="key-figure">
             <div class="key-figure-label">Monatliche Kosten</div>
-            <div class="key-figure-value">{{formatCurrency sections.children.keyFigures.monthlyCosts}}</div>
+            <div class="key-figure-value">{{formatCurrency keyFigures.monthlyCosts}}</div>
         </div>
         <div class="key-figure">
             <div class="key-figure-label">Monatlicher Beitrag</div>
-            <div class="key-figure-value">{{formatCurrency sections.children.keyFigures.monthlyContribution}}</div>
+            <div class="key-figure-value">{{formatCurrency keyFigures.monthlyContribution}}</div>
         </div>
         <div class="key-figure">
             <div class="key-figure-label">Jährliche Kosten</div>
-            <div class="key-figure-value">{{formatCurrency sections.children.keyFigures.annualCosts}}</div>
+            <div class="key-figure-value">{{formatCurrency keyFigures.annualCosts}}</div>
         </div>
     </div>
+    {{/if}}
     
-    {{#if sections.children.keyFigures.ageGroups.length}}
+    {{#if keyFigures.ageGroups.length}}
     <h3 style="color: #2c5aa0; margin: 20px 0 10px 0;">Altersgruppen</h3>
     <table class="table">
         <thead>
@@ -32,7 +35,7 @@
             </tr>
         </thead>
         <tbody>
-            {{#each sections.children.keyFigures.ageGroups}}
+            {{#each keyFigures.ageGroups}}
             <tr>
                 <td>{{ageGroup}}</td>
                 <td>{{count}}</td>
@@ -57,37 +60,39 @@
         <tbody>
             <tr>
                 <td>Betreuung</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.careCosts}}</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.careCostsAnnual}}</td>
+                <td class="currency">{{formatCurrency keyFigures.careCosts}}</td>
+                <td class="currency">{{formatCurrency keyFigures.careCostsAnnual}}</td>
                 <td>Kita, Hort, Tagesmutter</td>
             </tr>
             <tr>
                 <td>Bildung</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.educationCosts}}</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.educationCostsAnnual}}</td>
+                <td class="currency">{{formatCurrency keyFigures.educationCosts}}</td>
+                <td class="currency">{{formatCurrency keyFigures.educationCostsAnnual}}</td>
                 <td>Schulmaterial, Kurse</td>
             </tr>
             <tr>
                 <td>Kleidung & Ausrüstung</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.clothingCosts}}</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.clothingCostsAnnual}}</td>
+                <td class="currency">{{formatCurrency keyFigures.clothingCosts}}</td>
+                <td class="currency">{{formatCurrency keyFigures.clothingCostsAnnual}}</td>
                 <td>Kleidung, Spielzeug, Möbel</td>
             </tr>
             <tr style="background-color: #f8f9fa; font-weight: bold;">
                 <td>Total</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.monthlyCosts}}</td>
-                <td class="currency">{{formatCurrency sections.children.keyFigures.annualCosts}}</td>
+                <td class="currency">{{formatCurrency keyFigures.monthlyCosts}}</td>
+                <td class="currency">{{formatCurrency keyFigures.annualCosts}}</td>
                 <td>-</td>
             </tr>
         </tbody>
     </table>
+    {{/if}}
     
-    {{#if sections.children.notes}}
+    {{#if notes}}
     <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
-        <strong>Hinweise:</strong> {{sections.children.notes}}
+        <strong>Hinweise:</strong> {{notes}}
     </div>
     {{/if}}
 </div>
+{{/if}}
 
 <div class="page-break"></div>
 
