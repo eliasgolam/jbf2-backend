@@ -185,9 +185,38 @@ function renderTemplate(templateName, data) {
   }
 
   const templateContent = fs.readFileSync(templatePath, 'utf8');
-  const template = handlebars.compile(templateContent);
   
-  return template(data);
+  try {
+    const template = handlebars.compile(templateContent);
+    return template(data);
+  } catch (e) {
+    console.error('[PDF][HB] Compile error:', e.message);
+    console.error('[PDF][HB] Template:', templateName);
+    
+    // Extract line number from error message if available
+    const lineMatch = e.message.match(/line (\d+)/);
+    if (lineMatch) {
+      const errorLine = parseInt(lineMatch[1]);
+      const startLine = Math.max(0, errorLine - 10);
+      const endLine = errorLine + 10;
+      
+      console.error('[PDF][HB] Template snippet around error (lines', startLine + 1, 'to', endLine + 1, '):');
+      console.error('=====================================');
+      const lines = templateContent.split('\n');
+      lines.slice(startLine, endLine).forEach((line, index) => {
+        const lineNum = startLine + index + 1;
+        const marker = lineNum === errorLine ? '>>> ' : '    ';
+        console.error(`${marker}${lineNum.toString().padStart(3, ' ')}: ${line}`);
+      });
+      console.error('=====================================');
+    } else {
+      // Fallback: show first 500 characters
+      console.error('[PDF][HB] Template snippet (first 500 chars):');
+      console.error(templateContent.substring(0, 500));
+    }
+    
+    throw e;
+  }
 }
 
 /**

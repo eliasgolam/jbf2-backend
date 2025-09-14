@@ -1,6 +1,7 @@
-{{#if present}}
 <div class="section">
     <h2 class="section-title">{{title}}</h2>
+    
+    <p class="debug">DBG Children Count: {{keyFigures.count}}</p>
     
     {{#if keyFigures}}
     <div class="key-figures">
@@ -84,6 +85,7 @@
             </tr>
         </tbody>
     </table>
+    
     {{/if}}
     
     {{#if notes}}
@@ -92,7 +94,6 @@
     </div>
     {{/if}}
 </div>
-{{/if}}
 
 <div class="page-break"></div>
 

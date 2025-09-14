@@ -1,6 +1,7 @@
-{{#if present}}
 <div class="section">
     <h2 class="section-title">{{title}}</h2>
+    
+    <p class="debug">DBG Property Value: {{formatCurrency keyFigures.propertyValue}}</p>
     
     {{#if keyFigures}}
     <div class="key-figures">
@@ -49,7 +50,6 @@
             </tr>
         </tbody>
     </table>
-    {{/if}}
     
     <div style="margin-top: 15px; padding: 15px; background: {{#if keyFigures.affordable}}#d4edda{{else}}#f8d7da{{/if}}; border: 1px solid {{#if keyFigures.affordable}}#c3e6cb{{else}}#f5c6cb{{/if}}; border-radius: 4px;">
         <h4 style="margin: 0 0 10px 0; color: {{#if keyFigures.affordable}}#155724{{else}}#721c24{{/if}};">
@@ -64,6 +64,7 @@
             {{/if}}
         </p>
     </div>
+    {{/if}}
     
     {{#if notes}}
     <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
@@ -71,7 +72,6 @@
     </div>
     {{/if}}
 </div>
-{{/if}}
 
 <div class="page-break"></div>
 

@@ -1,6 +1,7 @@
-{{#if present}}
 <div class="section budget-section">
   <h2 class="section-title">{{title}}</h2>
+  
+  <p class="debug">DBG Income: {{formatCurrency keyFigures.income}}</p>
   
   {{#if keyFigures}}
   <div class="key-figures">
@@ -161,4 +162,3 @@
   line-height: 1.6;
 }
 </style>
-{{/if}}
