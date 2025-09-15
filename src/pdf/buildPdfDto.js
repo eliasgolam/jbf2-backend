@@ -57,26 +57,21 @@ function formatDate(date) {
  * @returns {Object} Budget section DTO
  */
 function buildBudgetSection(budget) {
-  if (!budget) return { present: false };
+  const b = budget || {};
+  const safe = v => (v===null||v===undefined ? undefined : v);
+  const income = safe(b.income ?? b.totals?.income ?? b.summeEinnahmen ?? b.totalIncome);
+  const expenses = safe(b.expenses ?? b.totals?.expense ?? b.summeAusgaben ?? b.totalExpenses);
+  const savings = safe(b.savings ?? b.sparquote ?? b.savingsRate);
+  const available = safe(b.available ?? (income!==undefined && expenses!==undefined ? income - expenses : undefined));
 
-  const income = safe(budget.income ?? budget.totals?.income ?? budget.summeEinnahmen ?? budget.totalIncome);
-  const expenses = safe(budget.expenses ?? budget.totals?.expense ?? budget.summeAusgaben ?? budget.totalExpenses);
-  const available = income - expenses;
-  const savings = safe(budget.savings ?? budget.sparquote ?? budget.savingsRate);
-
-  return {
-    present: true,
-    title: 'Budget-Analyse',
-    keyFigures: {
-      income,
-      expenses,
-      available,
-      savings,
-      expenseRatio: income > 0 ? Number(((expenses / income) * 100).toFixed(1)) : 0,
-      availableRatio: income > 0 ? Number(((available / income) * 100).toFixed(1)) : 0
-    },
-    notes: budget.notes || ''
+  const sections = {
+    present: income!==undefined || expenses!==undefined || savings!==undefined || available!==undefined,
+    title: 'Budget',
+    keyFigures: { income, expenses, savings, available },
+    notes: b.notes
   };
+  console.log('[PDF DTO][budget]', sections);
+  return sections;
 }
 
 /**
@@ -85,52 +80,21 @@ function buildBudgetSection(budget) {
  * @returns {Object} Savings section DTO
  */
 async function buildSavingsSection(savings) {
-  if (!savings) return { present: false };
+  const s = savings || {};
+  const safe = v => (v===null||v===undefined ? undefined : v);
+  const startCapital = safe(s.startCapital ?? s.startkapital ?? s.anfangskapital);
+  const monthlySaving = safe(s.monthlySaving ?? s.monthlyRate ?? s.sparrate);
+  const rate = safe(s.rate ?? s.ratePercent ?? s.zinssatz ?? s.interestRate);
+  const years = safe(s.years ?? s.jahre ?? s.laufzeit);
+  const endValue = safe(s.endValue ?? s.endAmount ?? s.endkapital);
 
-  const startCapital = safe(savings.startCapital ?? savings.startkapital ?? savings.anfangskapital);
-  const monthlyRate = safe(savings.monthlyRate ?? savings.monatlicheRate ?? savings.monatlicherBetrag);
-  const ratePercent = safe(savings.ratePercent ?? savings.zinssatz ?? savings.interestRate);
-  const years = safe(savings.years ?? savings.jahre ?? savings.laufzeit);
-  const targetAmount = safe(savings.zielbetrag ?? savings.targetAmount ?? savings.ziel ?? savings.goal);
-
-  // Generate schedule if not present
-  let schedule = savings.schedule || [];
-  if (schedule.length === 0 && years > 0) {
-    schedule = generateSavingsSchedule(startCapital, monthlyRate, ratePercent, years);
-  }
-
-  const endValue = schedule.length > 0 ? schedule[schedule.length - 1].yearEndCapital : startCapital;
-  const totalInvested = startCapital + (monthlyRate * 12 * years);
-
-  const section = {
-    present: true,
+  const sections = {
+    present: monthlySaving!==undefined || endValue!==undefined || startCapital!==undefined,
     title: 'Sparrechner',
-    keyFigures: {
-      endValue: safe(endValue),
-      years: safe(years),
-      rate: safe(ratePercent),
-      monthlySaving: safe(monthlyRate),
-      totalInvested: safe(totalInvested),
-      startCapital: safe(startCapital),
-      targetAmount: safe(targetAmount)
-    },
-    tables: {
-      schedule: schedule || []
-    },
-    notes: savings.notes || ''
+    keyFigures: { startCapital, monthlySaving, rate, years, endValue }
   };
 
-  // Add chart data if schedule has multiple entries
-  if (schedule.length > 1) {
-    try {
-      section.chartDataUrl = await buildSavingsChart(schedule);
-    } catch (error) {
-      console.warn('Failed to generate savings chart:', error.message);
-      // Continue without chart if generation fails
-    }
-  }
-
-  return section;
+  return sections;
 }
 
 /**
@@ -419,7 +383,7 @@ async function buildPdfDto(session, options = {}) {
   console.log('[PDF] section present flags (after filter)', {
     'budget.present': budgetSec?.present, 
     'pension.present': pensionSec?.present, 
-    'savings.present': savingsSec?.present,
+    'savingsPlanner.present': savingsSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
@@ -441,7 +405,7 @@ async function buildPdfDto(session, options = {}) {
     executiveSummary: buildExecutiveSummary(session),
     sections: {
       budget: budgetSec,
-      savings: savingsSec,
+      savingsPlanner: savingsSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,

@@ -1,176 +1,20 @@
-<div class="section budget-section">
-  <h2 class="section-title">{{title}}</h2>
-  
-  <p class="debug">DBG Income: {{formatCurrency keyFigures.income}}</p>
-  
-  {{#if keyFigures}}
-  <div class="key-figures">
-    <h3>Budget-Übersicht</h3>
-    <div class="figures-grid">
-      {{#if keyFigures.income}}
-      <div class="figure-item income">
-        <span class="figure-label">Einkommen:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.income}}</span>
-      </div>
-      {{/if}}
-      {{#if keyFigures.expenses}}
-      <div class="figure-item expenses">
-        <span class="figure-label">Ausgaben:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.expenses}}</span>
-      </div>
-      {{/if}}
-      {{#if keyFigures.available}}
-      <div class="figure-item available highlight">
-        <span class="figure-label">Verfügbar:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.available}}</span>
-      </div>
-      {{/if}}
-      {{#if keyFigures.savings}}
-      <div class="figure-item savings">
-        <span class="figure-label">Sparrate:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.savings}}</span>
-      </div>
-      {{/if}}
-    </div>
-    
-    <div class="ratios">
-      {{#if keyFigures.expenseRatio}}
-      <div class="ratio-item">
-        <span class="ratio-label">Ausgabenquote:</span>
-        <span class="ratio-value">{{formatPercentage keyFigures.expenseRatio}}</span>
-      </div>
-      {{/if}}
-      {{#if keyFigures.availableRatio}}
-      <div class="ratio-item">
-        <span class="ratio-label">Verfügbare Quote:</span>
-        <span class="ratio-value">{{formatPercentage keyFigures.availableRatio}}</span>
-      </div>
-      {{/if}}
-    </div>
-  </div>
-  {{/if}}
+{{#if keyFigures}}
 
-  {{#if notes}}
-  <div class="notes">
-    <h3>Notizen</h3>
-    <p>{{notes}}</p>
-  </div>
-  {{/if}}
-</div>
+{{#if keyFigures.income}}
+Einnahmen: {{formatCurrency keyFigures.income}}
+{{/if}}
+{{#if keyFigures.expenses}}
+Ausgaben: {{formatCurrency keyFigures.expenses}}
+{{/if}}
+{{#if keyFigures.savings}}
+Sparquote: {{formatPercentage keyFigures.savings}}
+{{/if}}
+{{#if keyFigures.available}}
+Verfügbar/Monat: {{formatCurrency keyFigures.available}}
+{{/if}}
 
-<style>
-.budget-section {
-  margin-bottom: 2rem;
-  page-break-inside: avoid;
-}
+{{/if}}
 
-.section-title {
-  color: #1f2937;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.5rem;
-}
-
-.key-figures h3,
-.notes h3 {
-  color: #374151;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 1.5rem 0 1rem 0;
-}
-
-.figures-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.figure-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  border-left: 4px solid;
-}
-
-.figure-item.income {
-  background-color: #f0fdf4;
-  border-left-color: #22c55e;
-}
-
-.figure-item.expenses {
-  background-color: #fef2f2;
-  border-left-color: #ef4444;
-}
-
-.figure-item.available {
-  background-color: #eff6ff;
-  border-left-color: #3b82f6;
-}
-
-.figure-item.savings {
-  background-color: #fefce8;
-  border-left-color: #eab308;
-}
-
-.figure-item.highlight {
-  font-weight: 600;
-}
-
-.figure-label {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.figure-value {
-  color: #1f2937;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.ratios {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.ratio-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: #f9fafb;
-  border-radius: 0.375rem;
-  border: 1px solid #e5e7eb;
-}
-
-.ratio-label {
-  color: #6b7280;
-  font-size: 0.8rem;
-}
-
-.ratio-value {
-  color: #1f2937;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.notes {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-  border-left: 4px solid #10b981;
-}
-
-.notes p {
-  margin: 0;
-  color: #374151;
-  line-height: 1.6;
-}
-</style>
+{{#if notes}}
+{{notes}}
+{{/if}}

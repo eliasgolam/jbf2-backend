@@ -12,6 +12,17 @@ const { buildPdfDto } = require('../pdf/buildPdfDto');
 const { optionalAuth, rateLimit } = require('../../middleware/auth');
 const { logSecurityEvent, logPerformance } = require('../../middleware/logging');
 
+// Topic mapping for PDF filtering
+const topicMap = {
+  lebensstandard: ['budget','savingsPlanner','health'],
+  vermoegen: ['budget','savingsPlanner'],
+  vorsorge: ['budget','savingsPlanner','pension'],
+  kranken: ['budget','health'],
+  immobilien: ['budget','property'],
+  kinder: ['budget','savingsPlanner','children'],
+  alle: ['budget','savingsPlanner','pension','health','property','children']
+};
+
 // Health-Route (nur wenn SMOKE_PDF=1)
 if (process.env.SMOKE_PDF === '1') {
   router.get('/health/pdf', async (req, res) => {
@@ -131,10 +142,31 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
 
     // Build PDF DTO with selectedTopics
     console.log('[PDF] building PDF DTO');
+    
+    // Process selectedTopics through topicMap
+    let selectedTopics = req.body?.selectedTopics || session?.selectedTopics || [];
+    if (Array.isArray(selectedTopics) && selectedTopics.length > 0) {
+      // Expand topic categories to individual sections
+      const expandedTopics = new Set();
+      selectedTopics.forEach(topic => {
+        if (topicMap[topic]) {
+          topicMap[topic].forEach(section => expandedTopics.add(section));
+        } else {
+          expandedTopics.add(topic);
+        }
+      });
+      selectedTopics = Array.from(expandedTopics);
+    }
+    
     const options = {
-      selectedTopics: req.body?.selectedTopics || session?.selectedTopics || [],
+      selectedTopics: selectedTopics,
       notes: req.body?.notes || session?.notes || ''
     };
+    console.log('[PDF] topic mapping applied', { 
+      original: req.body?.selectedTopics || session?.selectedTopics || [],
+      expanded: selectedTopics 
+    });
+    
     const pdfDto = await buildPdfDto(session, options);
     console.log('[PDF] PDF DTO built', { hasData: !!pdfDto, selectedTopics: options.selectedTopics });
 
