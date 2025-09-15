@@ -29,12 +29,6 @@
         <span class="figure-value">{{keyFigures.years}} Jahre</span>
       </div>
       {{/if}}
-      {{#if keyFigures.targetAmount}}
-      <div class="figure-item">
-        <span class="figure-label">Zielbetrag:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.targetAmount}}</span>
-      </div>
-      {{/if}}
       {{#if keyFigures.endValue}}
       <div class="figure-item highlight">
         <span class="figure-label">Endkapital:</span>
@@ -45,12 +39,25 @@
   </div>
   {{/if}}
 
-  {{#if chartDataUrl}}
+  {{#if chartData}}
   <div class="chart-container">
     <h3>Kapitalentwicklung</h3>
-    <div class="chart-wrapper">
-      <img src="{{chartDataUrl}}" alt="Sparplan Chart" class="savings-chart" />
-    </div>
+    <table class="chart-table">
+      <thead>
+        <tr>
+          <th>Jahr</th>
+          <th>Vermögen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each chartData}}
+        <tr>
+          <td>{{this.year}}</td>
+          <td>{{formatCurrency this.value}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
   </div>
   {{/if}}
 
@@ -72,7 +79,7 @@
           <td>{{year}}</td>
           <td>{{formatCurrency startCapital}}</td>
           <td>{{formatCurrency monthlySaving}}</td>
-          <td class="highlight">{{formatCurrency yearEndCapital}}</td>
+          <td class="highlight">{{formatCurrency endValue}}</td>
         </tr>
         {{/each}}
       </tbody>
@@ -165,6 +172,40 @@
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+.chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.chart-table thead {
+  background-color: #f3f4f6;
+}
+
+.chart-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.chart-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+.chart-table td:last-child {
+  text-align: right;
+  font-weight: 600;
 }
 
 .schedule-table {

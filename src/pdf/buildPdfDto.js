@@ -57,18 +57,43 @@ function formatDate(date) {
  * @returns {Object} Budget section DTO
  */
 function buildBudgetSection(budget) {
-  const b = budget || {};
-  const safe = v => (v===null||v===undefined ? undefined : v);
-  const income = safe(b.income ?? b.totals?.income ?? b.summeEinnahmen ?? b.totalIncome);
-  const expenses = safe(b.expenses ?? b.totals?.expense ?? b.summeAusgaben ?? b.totalExpenses);
-  const savings = safe(b.savings ?? b.sparquote ?? b.savingsRate);
-  const available = safe(b.available ?? (income!==undefined && expenses!==undefined ? income - expenses : undefined));
+  // ---------- Budget ----------
+  const B = budget || {};
+  const val = (v) => (v === null || v === undefined ? undefined : v);
+  const budgetIncome =
+    val(B.income) ??
+    val(B.totalIncome) ??
+    val(B.summeEinnahmen) ??
+    val(B?.totals?.income);
+  const budgetExpenses =
+    val(B.expenses) ??
+    val(B.totalExpenses) ??
+    val(B.summeAusgaben) ??
+    val(B?.totals?.expense);
+  const budgetSavings =
+    val(B.savings) ??
+    val(B.sparquote) ??
+    val(B.savingsRate);
+  const budgetAvailable =
+    val(B.available) ??
+    (budgetIncome !== undefined && budgetExpenses !== undefined
+      ? budgetIncome - budgetExpenses
+      : undefined);
 
   const sections = {
-    present: income!==undefined || expenses!==undefined || savings!==undefined || available!==undefined,
+    present:
+      budgetIncome !== undefined ||
+      budgetExpenses !== undefined ||
+      budgetSavings !== undefined ||
+      budgetAvailable !== undefined,
     title: 'Budget',
-    keyFigures: { income, expenses, savings, available },
-    notes: b.notes
+    keyFigures: {
+      income: budgetIncome,
+      expenses: budgetExpenses,
+      savings: budgetSavings,
+      available: budgetAvailable
+    },
+    notes: B.notes
   };
   console.log('[PDF DTO][budget]', sections);
   return sections;
@@ -80,19 +105,33 @@ function buildBudgetSection(budget) {
  * @returns {Object} Savings section DTO
  */
 async function buildSavingsSection(savings) {
-  const s = savings || {};
-  const safe = v => (v===null||v===undefined ? undefined : v);
-  const startCapital = safe(s.startCapital ?? s.startkapital ?? s.anfangskapital);
-  const monthlySaving = safe(s.monthlySaving ?? s.monthlyRate ?? s.sparrate);
-  const rate = safe(s.rate ?? s.ratePercent ?? s.zinssatz ?? s.interestRate);
-  const years = safe(s.years ?? s.jahre ?? s.laufzeit);
-  const endValue = safe(s.endValue ?? s.endAmount ?? s.endkapital);
+  // ---------- SavingsPlanner ----------
+  const S = savings || {};
+  const val = (v) => (v === null || v === undefined ? undefined : v);
+  const sStart = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
+  const sMonthly = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
+  const sRate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
+  const sYears = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
+  const sEnd = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
+  const sChart = S.chartData ?? S.chart ?? S.graph ?? undefined;
 
   const sections = {
-    present: monthlySaving!==undefined || endValue!==undefined || startCapital!==undefined,
+    present: sMonthly !== undefined || sEnd !== undefined || sStart !== undefined,
     title: 'Sparrechner',
-    keyFigures: { startCapital, monthlySaving, rate, years, endValue }
+    keyFigures: {
+      startCapital: sStart,
+      monthlySaving: sMonthly,
+      rate: sRate,
+      years: sYears,
+      endValue: sEnd
+    },
+    chartData: sChart
   };
+  console.log('[PDF DTO][savingsPlanner]', {
+    present: sections.savingsPlanner.present,
+    hasChart: !!sections.savingsPlanner.chartData,
+    points: Array.isArray(sections.savingsPlanner.chartData) ? sections.savingsPlanner.chartData.length : 0
+  });
 
   return sections;
 }
