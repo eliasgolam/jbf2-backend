@@ -1,115 +1,74 @@
-<div class="section">
-    <h2 class="section-title">{{title}}</h2>
-    
-    <p class="debug">DBG Children Count: {{keyFigures.count}}</p>
-    
-    {{#if keyFigures}}
-    <div class="key-figures">
-        {{#if keyFigures.count}}
-        <div class="key-figure">
-            <div class="key-figure-label">Anzahl Kinder</div>
-            <div class="key-figure-value">{{keyFigures.count}}</div>
-        </div>
-        {{/if}}
-        {{#if keyFigures.monthlyCosts}}
-        <div class="key-figure">
-            <div class="key-figure-label">Monatliche Kosten</div>
-            <div class="key-figure-value">{{formatCurrency keyFigures.monthlyCosts}}</div>
-        </div>
-        {{/if}}
-        {{#if keyFigures.monthlyContribution}}
-        <div class="key-figure">
-            <div class="key-figure-label">Monatlicher Beitrag</div>
-            <div class="key-figure-value">{{formatCurrency keyFigures.monthlyContribution}}</div>
-        </div>
-        {{/if}}
-        {{#if keyFigures.annualCosts}}
-        <div class="key-figure">
-            <div class="key-figure-label">Jährliche Kosten</div>
-            <div class="key-figure-value">{{formatCurrency keyFigures.annualCosts}}</div>
-        </div>
-        {{/if}}
-    </div>
-    {{/if}}
-    
-    {{#if keyFigures.ageGroups.length}}
-    <h3 style="color: #2c5aa0; margin: 20px 0 10px 0;">Altersgruppen</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Altersgruppe</th>
-                <th>Anzahl</th>
-                <th class="currency">Monatliche Kosten</th>
-                <th class="currency">Jährliche Kosten</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each keyFigures.ageGroups}}
-            <tr>
-                <td>{{ageGroup}}</td>
-                <td>{{count}}</td>
-                <td class="currency">{{formatCurrency monthlyCosts}}</td>
-                <td class="currency">{{formatCurrency annualCosts}}</td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-    {{/if}}
-    
-    <h3 style="color: #2c5aa0; margin: 20px 0 10px 0;">Kostenaufstellung</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Kategorie</th>
-                <th class="currency">Monatlich (CHF)</th>
-                <th class="currency">Jährlich (CHF)</th>
-                <th>Beschreibung</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#if keyFigures.careCosts}}
-            <tr>
-                <td>Betreuung</td>
-                <td class="currency">{{formatCurrency keyFigures.careCosts}}</td>
-                <td class="currency">{{formatCurrency keyFigures.careCostsAnnual}}</td>
-                <td>Kita, Hort, Tagesmutter</td>
-            </tr>
-            {{/if}}
-            {{#if keyFigures.educationCosts}}
-            <tr>
-                <td>Bildung</td>
-                <td class="currency">{{formatCurrency keyFigures.educationCosts}}</td>
-                <td class="currency">{{formatCurrency keyFigures.educationCostsAnnual}}</td>
-                <td>Schulmaterial, Kurse</td>
-            </tr>
-            {{/if}}
-            {{#if keyFigures.clothingCosts}}
-            <tr>
-                <td>Kleidung & Ausrüstung</td>
-                <td class="currency">{{formatCurrency keyFigures.clothingCosts}}</td>
-                <td class="currency">{{formatCurrency keyFigures.clothingCostsAnnual}}</td>
-                <td>Kleidung, Spielzeug, Möbel</td>
-            </tr>
-            {{/if}}
-            {{#if keyFigures.monthlyCosts}}
-            <tr style="background-color: #f8f9fa; font-weight: bold;">
-                <td>Total</td>
-                <td class="currency">{{formatCurrency keyFigures.monthlyCosts}}</td>
-                <td class="currency">{{formatCurrency keyFigures.annualCosts}}</td>
-                <td>-</td>
-            </tr>
-            {{/if}}
-        </tbody>
-    </table>
-    
-    {{/if}}
-    
-    {{#if notes}}
-    <div style="margin-top: 15px; padding: 10px; background: #e8f4fd; border-left: 4px solid #2c5aa0;">
-        <strong>Hinweise:</strong> {{notes}}
-    </div>
-    {{/if}}
-</div>
+{{#if keyFigures.count}}
+  <div class="kf">
+    <div class="key-figure-label">Anzahl Kinder</div>
+    <div class="key-figure-value">{{keyFigures.count}}</div>
+  </div>
+{{/if}}
 
-<div class="page-break"></div>
+{{#if keyFigures.monthlyCosts}}
+  <div class="kf">
+    <div class="key-figure-label">Monatliche Kosten</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.monthlyCosts}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.monthlyContribution}}
+  <div class="kf">
+    <div class="key-figure-label">Monatlicher Beitrag</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.monthlyContribution}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.annualCosts}}
+  <div class="kf">
+    <div class="key-figure-label">Jährliche Kosten</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.annualCosts}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.careCosts}}
+  <div class="kf">
+    <div class="key-figure-label">Betreuungskosten</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.careCosts}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.educationCosts}}
+  <div class="kf">
+    <div class="key-figure-label">Bildungskosten</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.educationCosts}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.clothingCosts}}
+  <div class="kf">
+    <div class="key-figure-label">Kleidung & Ausrüstung</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.clothingCosts}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.careCostsAnnual}}
+  <div class="kf">
+    <div class="key-figure-label">Betreuungskosten (Jährlich)</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.careCostsAnnual}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.educationCostsAnnual}}
+  <div class="kf">
+    <div class="key-figure-label">Bildungskosten (Jährlich)</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.educationCostsAnnual}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.clothingCostsAnnual}}
+  <div class="kf">
+    <div class="key-figure-label">Kleidung & Ausrüstung (Jährlich)</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.clothingCostsAnnual}}</div>
+  </div>
+{{/if}}
+
+{{#if notes}}
+{{notes}}
+{{/if}}
 

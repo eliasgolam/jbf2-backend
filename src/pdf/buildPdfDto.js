@@ -61,41 +61,22 @@ function formatDate(date) {
  * @returns {Object} Budget section DTO
  */
 function buildBudgetSection(budget) {
-  // ---------- Budget ----------
   const B = budget || {};
-  const budgetIncome =
-    val(B.income) ??
-    val(B.totalIncome) ??
-    val(B.summeEinnahmen) ??
-    val(B?.totals?.income);
-  const budgetExpenses =
-    val(B.expenses) ??
-    val(B.totalExpenses) ??
-    val(B.summeAusgaben) ??
-    val(B?.totals?.expense);
-  const budgetSavings =
-    val(B.savings) ??
-    val(B.sparquote) ??
-    val(B.savingsRate);
-  const budgetAvailable =
-    val(B.available) ??
-    (budgetIncome !== undefined && budgetExpenses !== undefined
-      ? budgetIncome - budgetExpenses
-      : undefined);
+  const income =
+    val(B.income) ?? val(B.totalIncome) ?? val(B.summeEinnahmen) ?? val(B?.totals?.income);
+  const expenses =
+    val(B.expenses) ?? val(B.totalExpenses) ?? val(B.summeAusgaben) ?? val(B?.totals?.expense);
+  const savings = val(B.savings) ?? val(B.sparquote) ?? val(B.savingsRate);
+  const available = val(B.available) ?? (income !== undefined && expenses !== undefined ? income - expenses : undefined);
 
-  const sections = {
-    present: [budgetIncome, budgetExpenses, budgetSavings, budgetAvailable].some(v => v !== undefined),
+  const budgetSection = {
+    present: [income, expenses, savings, available].some(v => v !== undefined),
     title: 'Budget',
-    keyFigures: {
-      income: budgetIncome,
-      expenses: budgetExpenses,
-      savings: budgetSavings,
-      available: budgetAvailable
-    },
+    keyFigures: { income, expenses, savings, available },
     notes: B.notes
   };
-  console.log('[PDF DTO][budget]', sections);
-  return sections;
+  console.log('[PDF DTO][budget]', budgetSection);
+  return budgetSection;
 }
 
 
@@ -322,6 +303,8 @@ async function buildPdfDto(rawSession, options = {}) {
   session.property = plain(session.property) || {};
   session.children = plain(session.children) || {};
 
+  console.log('[PDF] raw budget object', JSON.stringify(session.budget));
+
   console.log('[PDF] dto input (original session)', {
     hasBudget: !!session?.budget,
     hasSavingsPlanner: !!session?.savingsPlanner,
@@ -371,24 +354,20 @@ async function buildPdfDto(rawSession, options = {}) {
   
   // ---------- SavingsPlanner ----------
   const S = merged.savingsPlanner || {};
-  const sStart = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
-  const sMonthly = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
-  const sRate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
-  const sYears = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
-  const sEnd = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
-  const sChart = S.chartData ?? S.chart ?? S.graph ?? undefined;
+  const startCapital = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
+  const monthlySaving = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
+  const rate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
+  const years = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
+  const endValue = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
+  const chartData = S.chartData ?? S.chart ?? S.graph ?? undefined;
 
   const savingsSec = {
-    present: [sStart, sMonthly, sRate, sYears, sEnd].some(v => v !== undefined),
+    present: [startCapital, monthlySaving, rate, years, endValue].some(v => v !== undefined),
     title: 'Sparrechner',
-    keyFigures: { startCapital: sStart, monthlySaving: sMonthly, rate: sRate, years: sYears, endValue: sEnd },
-    chartData: sChart
+    keyFigures: { startCapital, monthlySaving, rate, years, endValue },
+    chartData
   };
-  console.log('[PDF DTO][savingsPlanner]', {
-    present: savingsSec.present,
-    hasChart: !!savingsSec.chartData,
-    points: Array.isArray(savingsSec.chartData) ? savingsSec.chartData.length : 0
-  });
+  console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, hasChart: !!chartData, points: Array.isArray(chartData)?chartData.length:0 });
   
   const pensionSec = buildPensionSection(merged.pension);
   const healthSec = buildHealthSection(merged.health);

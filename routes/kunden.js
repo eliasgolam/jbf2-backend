@@ -251,7 +251,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     }
   }
   
-  console.log('[SESSION] Tool parsed:', toolKey, 'keys:', Object.keys(payload||{}));
+  console.log('[SESSION] Tool saved:', toolKey, Object.keys(payload||{}));
 
   try {
     const update = {};
