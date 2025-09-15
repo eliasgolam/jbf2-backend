@@ -112,6 +112,65 @@ class MongoAdviceRepository {
   }
 
   /**
+   * Partial update of advice session
+   * @param {string} sessionId - Session ID (client ID)
+   * @param {Object} patch - Partial data to update
+   * @returns {Promise<Object>} The updated session
+   */
+  async update(sessionId, patch) {
+    try {
+      await this.ensureConnection();
+
+      // Get existing session or create new one
+      let existingSession = await AdviceSession.findOne({ id: sessionId });
+      
+      if (!existingSession) {
+        // Create new session with patch data
+        const newSession = {
+          id: sessionId,
+          session: {
+            ...patch,
+            meta: {
+              clientId: sessionId,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          },
+          updatedAt: new Date()
+        };
+        
+        const doc = await AdviceSession.create(newSession);
+        return doc.session;
+      }
+
+      // Merge patch into existing session
+      const updatedSession = {
+        ...existingSession.session,
+        ...patch,
+        meta: {
+          ...existingSession.session.meta,
+          updatedAt: new Date()
+        }
+      };
+
+      // Update in database
+      const doc = await AdviceSession.findOneAndUpdate(
+        { id: sessionId },
+        { 
+          session: updatedSession,
+          updatedAt: new Date()
+        },
+        { new: true }
+      );
+
+      return doc.session;
+    } catch (error) {
+      console.error('Error updating advice session:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Delete advice session by ID
    * @param {string} id - Session ID
    * @returns {Promise<boolean>} True if deleted, false if not found

@@ -139,11 +139,123 @@ router.get('/:id', async (req, res) => {
 // 🔒 Tool-Daten SPEICHERN – nur für aktiven Kunden
 router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
   const kundenId = req.session.kundenId;
-  const toolname = req.params.toolname;
+  
+  // ✅ Tool-Namen normalisieren und defensiv mappen
+  const normalize = (s) => (s || '').toLowerCase().trim();
+  const mapTool = (t) => {
+    if (['budget'].includes(t)) return 'budget';
+    if (['savingsplanner','sparrechner','sparen','savings'].includes(t)) return 'savingsPlanner';
+    if (['pension','vorsorge','pensionsplan','vorsorgerechner','vorsorgeplanung'].includes(t)) return 'pension';
+    if (['health','gesundheit','krankenkasse','ivrechner','iv'].includes(t)) return 'health';
+    if (['property','immobilie','tragbarkeit','tragbarkeitsrechner'].includes(t)) return 'property';
+    if (['children','kinder','kinderplanung','kinderabsichern'].includes(t)) return 'children';
+    return t;
+  };
+  
+  const raw = req.body.toolname || req.params.tool || req.params.toolname;
+  const toolKey = mapTool(normalize(raw));
+  
+  if (!['budget','savingsPlanner','pension','health','property','children'].includes(toolKey)) {
+    return res.status(400).json({ error: `Unsupported toolname: ${raw}` });
+  }
+  
+  console.log('[SESSION] Incoming tool:', raw, '=>', toolKey);
+  
+  // ✅ Defensive Datenextraktion je Tool
+  const safeNum = (v) => v===null||v===undefined ? undefined : (isFinite(Number(v))?Number(v):undefined);
+  const b = req.body || {};
+  let payload;
+  
+  switch (toolKey) {
+    case 'budget': {
+      payload = {
+        income: safeNum(b.summeEinnahmen ?? b.totalIncome ?? b.income),
+        expenses: safeNum(b.summeAusgaben ?? b.totalExpenses ?? b.expenses),
+        available: safeNum(b.available),
+        savings: safeNum(b.savings ?? b.sparquote ?? b.savingsRate),
+        notes: b.notes
+      };
+      break;
+    }
+    case 'savingsPlanner': {
+      payload = {
+        ziel: b.ziel,
+        intervall: b.intervall,
+        startCapital: safeNum(b.anfangskapital ?? b.startCapital ?? b.startkapital),
+        monthlySaving: safeNum(b.sparrate ?? b.monthlyRate ?? b.monatlicheRate),
+        rate: safeNum(b.zinssatz ?? b.ratePercent ?? b.interestRate),
+        years: safeNum(b.jahre ?? b.laufzeit ?? b.years),
+        endValue: safeNum(b.endkapital ?? b.endAmount ?? b.endValue),
+        chartData: b.chartData
+      };
+      break;
+    }
+    case 'pension': {
+      payload = {
+        pensionsluecke: b.pensionsluecke,
+        entnahmezeitraum: safeNum(b.entnahmezeitraum),
+        pensionsantritt: b.pensionsantritt,
+        startdatum: b.startdatum,
+        zinsEntnahme: safeNum(b.zinsEntnahme),
+        zinsSparen: safeNum(b.zinsSparen),
+        anfangskapital: b.anfangskapital,
+        sparrate: safeNum(b.sparrate),
+        pillar3a: safeNum(b.pillar3a ?? b['3a']),
+        pillar3b: safeNum(b.pillar3b ?? b['3b']),
+        lifeInsurance: safeNum(b.lifeInsurance ?? b.lebensversicherung),
+        chartData: b.chartData
+      };
+      break;
+    }
+    case 'health': {
+      payload = {
+        premiumAdult: safeNum(b.premiumAdult ?? b.premium ?? b.praemie),
+        yearlyCost: safeNum(b.yearlyCost ?? b.annualPremium),
+        franchise: safeNum(b.franchise),
+        provider: b.provider ?? b.anbieter,
+        // IV Felder mit übernehmen:
+        name: b.name, 
+        vorname: b.vorname, 
+        geburtsdatum: b.geburtsdatum,
+        zivilstand: b.zivilstand, 
+        kinder: b.kinder, 
+        bruttoLohn: b.bruttoLohn,
+        versicherterLohn: b.versicherterLohn, 
+        pensionskassenKapital: b.pensionskassenKapital,
+        benoetigtesEinkommen: b.benoetigtesEinkommen, 
+        bvgRente: b.bvgRente,
+        lohnzuwachs: b.lohnzuwachs, 
+        eintrittsalter: b.eintrittsalter
+      };
+      break;
+    }
+    case 'property': {
+      payload = {
+        propertyValue: safeNum(b.objektkosten ?? b.propertyValue ?? b.value),
+        equity: safeNum(b.eigenmittel ?? b.equity),
+        mortgage: safeNum(b.result?.hypothek1 ?? b.mortgage ?? b.hypothek),
+        affordabilityRatio: safeNum(b.result?.tragbarkeit ?? b.affordability ?? b.tragbarkeit),
+        monthlyPayment: safeNum(b.result?.totalBelastung ?? b.monthlyPayment),
+        interestRate: safeNum(b.interestRate ?? b.zinssatz),
+        amortization: safeNum(b.result?.amortisation ?? b.amortization),
+      };
+      break;
+    }
+    case 'children': {
+      payload = {
+        count: safeNum(b.anzahl ?? b.count ?? b.kinderAnzahl ?? b.numberOfChildren),
+        monthlyCosts: safeNum(b.kosten ?? b.monthlyCosts ?? b.monatlicheKosten ?? b.monthlyCost),
+        monthlyContribution: safeNum(b.beitrag ?? b.monthlyContribution ?? b.monatlicherBeitrag ?? b.contribution),
+      };
+      break;
+    }
+  }
+  
+  console.log('[SESSION] Tool parsed:', toolKey, 'keys:', Object.keys(payload||{}));
 
   try {
     const update = {};
-    update[`toolDaten.${toolname}`] = req.body;
+    update[`toolDaten.${toolKey}`] = payload;
 
     const updatedKunde = await Kunde.findByIdAndUpdate(
       kundenId,
@@ -157,98 +269,27 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     
     let sessionPatch = {};
     
-    if (toolname === 'budget') {
-      // Berechne Budget-Summen für Advice-Session
-      const { values, customRows } = req.body;
-      const categories = [
-        { name: 'einkommen', type: 'income' },
-        { name: 'ausgaben', type: 'expense' }
-      ];
-      
-      let income = 0;
-      let expenses = 0;
-      
-      // Berechne Einkommen und Ausgaben aus values
-      Object.keys(values || {}).forEach(catName => {
-        const cat = categories.find(c => c.name === catName);
-        if (cat) {
-          const v = values[catName] || {};
-          const sum = (v.kunde || 0) + (v.familie || 0);
-          if (cat.type === 'income') income += sum;
-          else expenses += sum;
-        }
-      });
-      
-      // Füge customRows hinzu
-      if (customRows) {
-        customRows.forEach(row => {
-          const sum = (row.kunde || 0) + (row.familie || 0);
-          if (row.type === 'income') income += sum;
-          else expenses += sum;
-        });
-      }
-      
-      sessionPatch.budget = {
-        income,
-        expenses,
-        available: income - expenses,
-        savings: 0, // Wird später vom Sparrechner gesetzt
-        values,
-        customRows,
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'savingsPlanner' || toolname === 'sparrechner' || toolname === 'sparplan') {
-      sessionPatch.savingsPlanner = {
-        startCapital: req.body.startCapital || req.body.startkapital || 0,
-        monthlyRate: req.body.monthlyRate || req.body.monatlicheRate || 0,
-        ratePercent: req.body.ratePercent || req.body.zinssatz || 0,
-        years: req.body.years || req.body.jahre || 0,
-        targetAmount: req.body.targetAmount || req.body.zielbetrag || 0,
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'pension' || toolname === 'vorsorge' || toolname === 'pensionsplan') {
-      sessionPatch.pension = {
-        saeule3a: req.body.saeule3a || req.body.pillar3a || 0,
-        saeule3b: req.body.saeule3b || req.body.pillar3b || 0,
-        lebensversicherung: req.body.lebensversicherung || req.body.lifeInsurance || 0,
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'health' || toolname === 'gesundheit' || toolname === 'ivrechner' || toolname === 'krankenkasse') {
-      sessionPatch.health = {
-        praemie: req.body.praemie || req.body.premium || 0,
-        franchise: req.body.franchise || 0,
-        selbstbehalt: req.body.selbstbehalt || req.body.deductible || 0,
-        praemienregion: req.body.praemienregion || req.body.premiumRegion || 'Unbekannt',
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'property' || toolname === 'immobilie' || toolname === 'tragbarkeit' || toolname === 'tragbarkeitsrechner') {
-      sessionPatch.property = {
-        propertyValue: req.body.propertyValue || req.body.immobilienwert || 0,
-        equity: req.body.equity || req.body.eigenkapital || 0,
-        mortgage: req.body.mortgage || req.body.hypothek || 0,
-        monthlyPayment: req.body.monthlyPayment || req.body.monatlicheRate || 0,
-        interestRate: req.body.interestRate || req.body.zinssatz || 2.5,
-        amortization: req.body.amortization || req.body.amortisation || 0,
-        affordable: req.body.affordable || req.body.tragbar || false,
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'children' || toolname === 'kinder' || toolname === 'kinderplanung') {
-      sessionPatch.children = {
-        anzahl: req.body.anzahl || req.body.count || 0,
-        kosten: req.body.kosten || req.body.monthlyCosts || 0,
-        beitrag: req.body.beitrag || req.body.monthlyContribution || 0,
-        altersgruppen: req.body.altersgruppen || req.body.ageGroups || [],
-        notes: req.body.notes || ''
-      };
-    } else if (toolname === 'wuensche' || toolname === 'empfehlungen') {
+    if (toolKey === 'budget') {
+      sessionPatch.budget = payload;
+    } else if (toolKey === 'savingsPlanner') {
+      sessionPatch.savingsPlanner = payload;
+    } else if (toolKey === 'pension') {
+      sessionPatch.pension = payload;
+    } else if (toolKey === 'health') {
+      sessionPatch.health = payload;
+    } else if (toolKey === 'property') {
+      sessionPatch.property = payload;
+    } else if (toolKey === 'children') {
+      sessionPatch.children = payload;
+    } else {
       // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
-      console.log(`[SESSION] Tool ${toolname} gespeichert, aber keine PDF-Section definiert`);
+      console.log(`[SESSION] Tool ${raw} (${toolKey}) gespeichert, aber keine PDF-Section definiert`);
     }
     
     // Speichere in Advice-Session falls Patch vorhanden
     if (Object.keys(sessionPatch).length > 0) {
       await adviceRepository.update(kundenId, sessionPatch);
-      console.log('[SESSION] updated', kundenId, Object.keys(sessionPatch));
+      console.log('[SESSION] Tool saved:', toolKey);
     }
 
     res.status(200).json(updatedKunde);
