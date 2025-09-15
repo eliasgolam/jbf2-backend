@@ -5,22 +5,30 @@
     
     {{#if keyFigures}}
     <div class="key-figures">
+        {{#if keyFigures.count}}
         <div class="key-figure">
             <div class="key-figure-label">Anzahl Kinder</div>
             <div class="key-figure-value">{{keyFigures.count}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.monthlyCosts}}
         <div class="key-figure">
             <div class="key-figure-label">Monatliche Kosten</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.monthlyCosts}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.monthlyContribution}}
         <div class="key-figure">
             <div class="key-figure-label">Monatlicher Beitrag</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.monthlyContribution}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.annualCosts}}
         <div class="key-figure">
             <div class="key-figure-label">Jährliche Kosten</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.annualCosts}}</div>
         </div>
+        {{/if}}
     </div>
     {{/if}}
     
@@ -59,30 +67,38 @@
             </tr>
         </thead>
         <tbody>
+            {{#if keyFigures.careCosts}}
             <tr>
                 <td>Betreuung</td>
                 <td class="currency">{{formatCurrency keyFigures.careCosts}}</td>
                 <td class="currency">{{formatCurrency keyFigures.careCostsAnnual}}</td>
                 <td>Kita, Hort, Tagesmutter</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.educationCosts}}
             <tr>
                 <td>Bildung</td>
                 <td class="currency">{{formatCurrency keyFigures.educationCosts}}</td>
                 <td class="currency">{{formatCurrency keyFigures.educationCostsAnnual}}</td>
                 <td>Schulmaterial, Kurse</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.clothingCosts}}
             <tr>
                 <td>Kleidung & Ausrüstung</td>
                 <td class="currency">{{formatCurrency keyFigures.clothingCosts}}</td>
                 <td class="currency">{{formatCurrency keyFigures.clothingCostsAnnual}}</td>
                 <td>Kleidung, Spielzeug, Möbel</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.monthlyCosts}}
             <tr style="background-color: #f8f9fa; font-weight: bold;">
                 <td>Total</td>
                 <td class="currency">{{formatCurrency keyFigures.monthlyCosts}}</td>
                 <td class="currency">{{formatCurrency keyFigures.annualCosts}}</td>
                 <td>-</td>
             </tr>
+            {{/if}}
         </tbody>
     </table>
     

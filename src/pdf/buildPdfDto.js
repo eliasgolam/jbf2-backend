@@ -206,25 +206,26 @@ function buildPensionSection(pension) {
 function buildHealthSection(health) {
   if (!health) return { present: false };
 
-  const premium = safe(health.praemie ?? health.premium ?? health.monatlichePraemie ?? health.monthlyPremium);
-  const franchise = safe(health.franchise ?? health.franchise ?? health.franchise);
-  const deductible = safe(health.selbstbehalt ?? health.deductible ?? health.selbstbehalt ?? health.deductible);
-  const providerCount = safe(health.providerCount ?? health.versichererAnzahl ?? health.insuranceCount ?? 1);
+  const h = health || {};
+  const premiumAdult = safe(h.premiumAdult ?? h.premium ?? h.praemie ?? h.monthlyPremium);
+  const yearlyCost = safe(h.yearlyCost ?? h.annualPremium);
+  const franchise = safe(h.franchise);
+  const deductible = safe(h.selbstbehalt ?? h.deductible);
+  const providerCount = safe(h.providerCount ?? h.versichererAnzahl ?? h.insuranceCount ?? 1);
 
   return {
-    present: true,
-    title: 'Gesundheitsversicherung',
-    keyFigures: {
-      premiumAdult: safe(premium),
-      premiumChild: safe(premium * 0.5), // Estimate 50% for children
+    present: premiumAdult !== undefined || yearlyCost !== undefined || franchise !== undefined,
+    title: 'Gesundheit',
+    keyFigures: { 
+      premiumAdult, 
+      yearlyCost, 
+      franchise,
       deductible: safe(deductible),
       providerCount: safe(providerCount),
-      yearlyCost: safe(premium * 12),
-      premiumRegion: health.praemienregion ?? health.premiumRegion ?? health.region ?? 'Unbekannt',
-      franchise: safe(franchise),
+      premiumRegion: h.praemienregion ?? h.premiumRegion ?? h.region ?? 'Unbekannt',
       maxDeductible: safe(franchise + deductible)
     },
-    notes: health.notes || ''
+    notes: h.notes || ''
   };
 }
 

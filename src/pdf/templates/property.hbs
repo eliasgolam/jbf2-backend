@@ -5,22 +5,30 @@
     
     {{#if keyFigures}}
     <div class="key-figures">
+        {{#if keyFigures.propertyValue}}
         <div class="key-figure">
             <div class="key-figure-label">Immobilienwert</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.propertyValue}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.equity}}
         <div class="key-figure">
             <div class="key-figure-label">Eigenkapital</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.equity}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.mortgage}}
         <div class="key-figure">
             <div class="key-figure-label">Hypothek</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.mortgage}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.monthlyPayment}}
         <div class="key-figure">
             <div class="key-figure-label">Monatliche Rate</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.monthlyPayment}}</div>
         </div>
+        {{/if}}
     </div>
     {{/if}}
     
@@ -33,21 +41,27 @@
             </tr>
         </thead>
         <tbody>
+            {{#if keyFigures.propertyValue}}
             <tr>
                 <td>Immobilienwert</td>
                 <td class="currency">{{formatCurrency keyFigures.propertyValue}}</td>
                 <td class="percentage">100%</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.equity}}
             <tr>
                 <td>Eigenkapital</td>
                 <td class="currency">{{formatCurrency keyFigures.equity}}</td>
                 <td class="percentage">{{formatPercentage keyFigures.equityRatio}}</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.mortgage}}
             <tr>
                 <td>Hypothek</td>
                 <td class="currency">{{formatCurrency keyFigures.mortgage}}</td>
                 <td class="percentage">{{formatPercentage keyFigures.mortgageRatio}}</td>
             </tr>
+            {{/if}}
         </tbody>
     </table>
     

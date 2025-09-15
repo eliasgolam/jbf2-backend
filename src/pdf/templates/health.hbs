@@ -1,28 +1,35 @@
 <div class="section">
     <h2 class="section-title">{{title}}</h2>
     
-    <p class="debug">DBG Premium: {{formatCurrency keyFigures.premium}}</p>
+    <p class="debug">DBG Premium: {{formatCurrency keyFigures.premiumAdult}}</p>
     
     {{#if keyFigures}}
     <div class="key-figures">
+        {{#if keyFigures.premiumRegion}}
         <div class="key-figure">
             <div class="key-figure-label">Prämienregion</div>
             <div class="key-figure-value">{{keyFigures.premiumRegion}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.franchise}}
         <div class="key-figure">
             <div class="key-figure-label">Franchise</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.franchise}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.premiumAdult}}
         <div class="key-figure">
             <div class="key-figure-label">Monatliche Prämie</div>
-            <div class="key-figure-value">{{formatCurrency keyFigures.premium}}</div>
+            <div class="key-figure-value">{{formatCurrency keyFigures.premiumAdult}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.deductible}}
         <div class="key-figure">
             <div class="key-figure-label">Selbstbehalt</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.deductible}}</div>
         </div>
+        {{/if}}
     </div>
-    {{/if}}
     
     <table class="table">
         <thead>
@@ -33,26 +40,34 @@
             </tr>
         </thead>
         <tbody>
+            {{#if keyFigures.yearlyCost}}
             <tr>
                 <td>Jährliche Prämie</td>
-                <td class="currency">{{formatCurrency keyFigures.annualPremium}}</td>
+                <td class="currency">{{formatCurrency keyFigures.yearlyCost}}</td>
                 <td>Monatliche Prämie × 12</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.franchise}}
             <tr>
                 <td>Franchise</td>
                 <td class="currency">{{formatCurrency keyFigures.franchise}}</td>
                 <td>Jährlicher Selbstbehalt vor Versicherungseintritt</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.deductible}}
             <tr>
                 <td>Selbstbehalt</td>
                 <td class="currency">{{formatCurrency keyFigures.deductible}}</td>
                 <td>Zusätzlicher Selbstbehalt nach Franchise</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.maxDeductible}}
             <tr>
                 <td>Max. Selbstbehalt</td>
                 <td class="currency">{{formatCurrency keyFigures.maxDeductible}}</td>
                 <td>Franchise + Selbstbehalt</td>
             </tr>
+            {{/if}}
         </tbody>
     </table>
     {{/if}}

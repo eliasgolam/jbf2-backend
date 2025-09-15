@@ -11,28 +11,36 @@
         <span class="figure-label">Startkapital:</span>
         <span class="figure-value">{{formatCurrency keyFigures.startCapital}}</span>
       </div>
+      {{#if keyFigures.monthlySaving}}
       <div class="figure-item">
         <span class="figure-label">Monatliche Rate:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.monthlyRate}}</span>
+        <span class="figure-value">{{formatCurrency keyFigures.monthlySaving}}</span>
       </div>
+      {{/if}}
+      {{#if keyFigures.rate}}
       <div class="figure-item">
         <span class="figure-label">Zinssatz:</span>
-        <span class="figure-value">{{formatPercentage keyFigures.ratePercent}}</span>
+        <span class="figure-value">{{formatPercentage keyFigures.rate}}</span>
       </div>
+      {{/if}}
+      {{#if keyFigures.years}}
       <div class="figure-item">
         <span class="figure-label">Laufzeit:</span>
         <span class="figure-value">{{keyFigures.years}} Jahre</span>
       </div>
+      {{/if}}
       {{#if keyFigures.targetAmount}}
       <div class="figure-item">
         <span class="figure-label">Zielbetrag:</span>
         <span class="figure-value">{{formatCurrency keyFigures.targetAmount}}</span>
       </div>
       {{/if}}
+      {{#if keyFigures.endValue}}
       <div class="figure-item highlight">
         <span class="figure-label">Endkapital:</span>
-        <span class="figure-value">{{formatCurrency keyFigures.endAmount}}</span>
+        <span class="figure-value">{{formatCurrency keyFigures.endValue}}</span>
       </div>
+      {{/if}}
     </div>
   </div>
   {{/if}}
@@ -63,7 +71,7 @@
         <tr>
           <td>{{year}}</td>
           <td>{{formatCurrency startCapital}}</td>
-          <td>{{formatCurrency monthlyRate}}</td>
+          <td>{{formatCurrency monthlySaving}}</td>
           <td class="highlight">{{formatCurrency yearEndCapital}}</td>
         </tr>
         {{/each}}

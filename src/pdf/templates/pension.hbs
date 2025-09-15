@@ -5,22 +5,30 @@
     
     {{#if keyFigures}}
     <div class="key-figures">
+        {{#if keyFigures.pillar3a}}
         <div class="key-figure">
             <div class="key-figure-label">3. Säule A</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.pillar3a}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.pillar3b}}
         <div class="key-figure">
             <div class="key-figure-label">3. Säule B</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.pillar3b}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.lifeInsurance}}
         <div class="key-figure">
             <div class="key-figure-label">Lebensversicherung</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.lifeInsurance}}</div>
         </div>
+        {{/if}}
+        {{#if keyFigures.total}}
         <div class="key-figure">
             <div class="key-figure-label">Total Vorsorge</div>
             <div class="key-figure-value">{{formatCurrency keyFigures.total}}</div>
         </div>
+        {{/if}}
     </div>
     
     <table class="table">
@@ -33,30 +41,38 @@
             </tr>
         </thead>
         <tbody>
+            {{#if keyFigures.pillar3a}}
             <tr>
                 <td>3. Säule A (Pensionskasse)</td>
                 <td class="currency">{{formatCurrency keyFigures.pillar3a}}</td>
                 <td class="currency">{{formatCurrency keyFigures.pillar3aMonthly}}</td>
                 <td>{{keyFigures.pillar3aStatus}}</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.pillar3b}}
             <tr>
                 <td>3. Säule B (Privatvorsorge)</td>
                 <td class="currency">{{formatCurrency keyFigures.pillar3b}}</td>
                 <td class="currency">{{formatCurrency keyFigures.pillar3bMonthly}}</td>
                 <td>{{keyFigures.pillar3bStatus}}</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.lifeInsurance}}
             <tr>
                 <td>Lebensversicherung</td>
                 <td class="currency">{{formatCurrency keyFigures.lifeInsurance}}</td>
                 <td class="currency">{{formatCurrency keyFigures.lifeInsuranceMonthly}}</td>
                 <td>{{keyFigures.lifeInsuranceStatus}}</td>
             </tr>
+            {{/if}}
+            {{#if keyFigures.total}}
             <tr style="background-color: #f8f9fa; font-weight: bold;">
                 <td>Total</td>
                 <td class="currency">{{formatCurrency keyFigures.total}}</td>
                 <td class="currency">{{formatCurrency keyFigures.totalMonthly}}</td>
                 <td>-</td>
             </tr>
+            {{/if}}
         </tbody>
     </table>
     {{/if}}
