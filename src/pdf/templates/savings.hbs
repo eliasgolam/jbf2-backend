@@ -52,8 +52,8 @@
       <tbody>
         {{#each chartData}}
         <tr>
-          <td>{{this.year}}</td>
-          <td>{{formatCurrency this.value}}</td>
+          <td>{{this.year}}{{this.x}}</td>
+          <td>{{formatCurrency this.value}}{{formatCurrency this.y}}</td>
         </tr>
         {{/each}}
       </tbody>

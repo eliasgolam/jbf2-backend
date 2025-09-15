@@ -169,6 +169,15 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     
     const pdfDto = await buildPdfDto(session, options);
     console.log('[PDF] PDF DTO built', { hasData: !!pdfDto, selectedTopics: options.selectedTopics });
+    
+    console.log('[PDF] section present flags (after DTO)', {
+      budget: pdfDto.sections.budget?.present,
+      savingsPlanner: pdfDto.sections.savingsPlanner?.present,
+      pension: pdfDto.sections.pension?.present,
+      health: pdfDto.sections.health?.present,
+      property: pdfDto.sections.property?.present,
+      children: pdfDto.sections.children?.present
+    });
 
     // Generate PDF with performance logging
     console.log('[PDF] generating PDF');

@@ -6,6 +6,10 @@
 const { buildSavingsChart } = require('./charts/savingsChart');
 const { loadToolsForCustomer } = require('../services/toolLoader');
 
+// Helper functions for robust data handling
+function val(v) { return v === null || v === undefined ? undefined : v; }
+function plain(obj) { return (obj && typeof obj.toObject === 'function') ? obj.toObject() : obj; }
+
 /**
  * Safe number conversion with fallback to 0
  * @param {any} n - Value to convert to number
@@ -59,7 +63,6 @@ function formatDate(date) {
 function buildBudgetSection(budget) {
   // ---------- Budget ----------
   const B = budget || {};
-  const val = (v) => (v === null || v === undefined ? undefined : v);
   const budgetIncome =
     val(B.income) ??
     val(B.totalIncome) ??
@@ -81,11 +84,7 @@ function buildBudgetSection(budget) {
       : undefined);
 
   const sections = {
-    present:
-      budgetIncome !== undefined ||
-      budgetExpenses !== undefined ||
-      budgetSavings !== undefined ||
-      budgetAvailable !== undefined,
+    present: [budgetIncome, budgetExpenses, budgetSavings, budgetAvailable].some(v => v !== undefined),
     title: 'Budget',
     keyFigures: {
       income: budgetIncome,
@@ -99,42 +98,6 @@ function buildBudgetSection(budget) {
   return sections;
 }
 
-/**
- * Build savings section DTO
- * @param {Object} savings - Savings data from session
- * @returns {Object} Savings section DTO
- */
-async function buildSavingsSection(savings) {
-  // ---------- SavingsPlanner ----------
-  const S = savings || {};
-  const val = (v) => (v === null || v === undefined ? undefined : v);
-  const sStart = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
-  const sMonthly = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
-  const sRate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
-  const sYears = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
-  const sEnd = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
-  const sChart = S.chartData ?? S.chart ?? S.graph ?? undefined;
-
-  const sections = {
-    present: sMonthly !== undefined || sEnd !== undefined || sStart !== undefined,
-    title: 'Sparrechner',
-    keyFigures: {
-      startCapital: sStart,
-      monthlySaving: sMonthly,
-      rate: sRate,
-      years: sYears,
-      endValue: sEnd
-    },
-    chartData: sChart
-  };
-  console.log('[PDF DTO][savingsPlanner]', {
-    present: sections.savingsPlanner.present,
-    hasChart: !!sections.savingsPlanner.chartData,
-    points: Array.isArray(sections.savingsPlanner.chartData) ? sections.savingsPlanner.chartData.length : 0
-  });
-
-  return sections;
-}
 
 /**
  * Generate savings schedule
@@ -349,7 +312,16 @@ function buildExecutiveSummary(session) {
  * @param {Object} options - Options including selectedTopics
  * @returns {Promise<Object>} PDF-ready DTO
  */
-async function buildPdfDto(session, options = {}) {
+async function buildPdfDto(rawSession, options = {}) {
+  // Session "ent-proxen" - convert Mongoose documents to plain objects
+  const session = plain(rawSession) || {};
+  session.budget = plain(session.budget) || {};
+  session.savingsPlanner = plain(session.savingsPlanner) || {};
+  session.pension = plain(session.pension) || {};
+  session.health = plain(session.health) || {};
+  session.property = plain(session.property) || {};
+  session.children = plain(session.children) || {};
+
   console.log('[PDF] dto input (original session)', {
     hasBudget: !!session?.budget,
     hasSavingsPlanner: !!session?.savingsPlanner,
@@ -396,7 +368,28 @@ async function buildPdfDto(session, options = {}) {
   
   // Build each section separately and log present flags
   const budgetSec = buildBudgetSection(merged.budget);
-  const savingsSec = await buildSavingsSection(merged.savingsPlanner);
+  
+  // ---------- SavingsPlanner ----------
+  const S = merged.savingsPlanner || {};
+  const sStart = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
+  const sMonthly = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
+  const sRate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
+  const sYears = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
+  const sEnd = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
+  const sChart = S.chartData ?? S.chart ?? S.graph ?? undefined;
+
+  const savingsSec = {
+    present: [sStart, sMonthly, sRate, sYears, sEnd].some(v => v !== undefined),
+    title: 'Sparrechner',
+    keyFigures: { startCapital: sStart, monthlySaving: sMonthly, rate: sRate, years: sYears, endValue: sEnd },
+    chartData: sChart
+  };
+  console.log('[PDF DTO][savingsPlanner]', {
+    present: savingsSec.present,
+    hasChart: !!savingsSec.chartData,
+    points: Array.isArray(savingsSec.chartData) ? savingsSec.chartData.length : 0
+  });
+  
   const pensionSec = buildPensionSection(merged.pension);
   const healthSec = buildHealthSection(merged.health);
   const propertySec = buildPropertySection(merged.property);
