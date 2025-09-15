@@ -350,10 +350,34 @@ async function buildPdfDto(rawSession, options = {}) {
   });
   
   // Build each section separately and log present flags
-  const budgetSec = buildBudgetSection(merged.budget);
+  // ---------- Budget ----------
+  const Braw = merged.budget || {};
+  const B = (typeof Braw.toObject === 'function') ? Braw.toObject() : Braw;
+  const income =
+    val(B.income) ??
+    val(B.totalIncome) ??
+    val(B.summeEinnahmen) ??
+    val(B?.totals?.income);
+  const expenses =
+    val(B.expenses) ??
+    val(B.totalExpenses) ??
+    val(B.summeAusgaben) ??
+    val(B?.totals?.expense);
+  const savings = val(B.savings) ?? val(B.sparquote) ?? val(B.savingsRate);
+  const available = val(B.available) ?? ((income!==undefined && expenses!==undefined) ? income - expenses : undefined);
+
+  const budgetSec = {
+    present: [income, expenses, savings, available].some(v => v !== undefined),
+    title: 'Budget',
+    keyFigures: { income, expenses, savings, available },
+    notes: B.notes
+  };
+  console.log('[PDF DTO][budget]', budgetSec);
+  console.log('[PDF] raw budget object (keys):', Object.keys(B||{}));
   
   // ---------- SavingsPlanner ----------
   const S = merged.savingsPlanner || {};
+  function val(v){ return v === null || v === undefined ? undefined : v; }
   const startCapital = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
   const monthlySaving = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
   const rate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
@@ -367,7 +391,11 @@ async function buildPdfDto(rawSession, options = {}) {
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
     chartData
   };
-  console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, hasChart: !!chartData, points: Array.isArray(chartData)?chartData.length:0 });
+  console.log('[PDF DTO][savingsPlanner]', {
+    present: savingsSec.present,
+    hasChart: !!savingsSec.chartData,
+    points: Array.isArray(savingsSec.chartData)? savingsSec.chartData.length : 0
+  });
   
   const pensionSec = buildPensionSection(merged.pension);
   const healthSec = buildHealthSection(merged.health);

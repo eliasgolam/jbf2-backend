@@ -141,32 +141,20 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   const kundenId = req.session.kundenId;
   
   // ✅ Tool-Namen normalisieren und defensiv mappen
-  const normalize = (s) => (s || '').toLowerCase().trim();
-  const mapTool = (t) => {
-    if (['budget'].includes(t)) return 'budget';
-    if (['savingsplanner','sparrechner','sparen','savings'].includes(t)) return 'savingsPlanner';
-    if (['pension','vorsorge','pensionsplan','vorsorgerechner','vorsorgeplanung'].includes(t)) return 'pension';
-    if (['health','gesundheit','krankenkasse','ivrechner','iv'].includes(t)) return 'health';
-    if (['property','immobilie','tragbarkeit','tragbarkeitsrechner'].includes(t)) return 'property';
-    if (['children','kinder','kinderplanung','kinderabsichern'].includes(t)) return 'children';
-    return t;
-  };
+  const toolName = (req.params.toolname || '').toLowerCase();
+  const key = toolName === 'sparrechner' ? 'savingsPlanner' : toolName;
+  console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(req.body||{}));
   
-  const raw = req.body.toolname || req.params.tool || req.params.toolname;
-  const toolKey = mapTool(normalize(raw));
-  
-  if (!['budget','savingsPlanner','pension','health','property','children'].includes(toolKey)) {
-    return res.status(400).json({ error: `Unsupported toolname: ${raw}` });
+  if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
+    return res.status(400).json({ error: `Unsupported toolname: ${toolName}` });
   }
-  
-  console.log('[SESSION] Incoming tool:', raw, '=>', toolKey);
   
   // ✅ Defensive Datenextraktion je Tool
   const safeNum = (v) => v===null||v===undefined ? undefined : (isFinite(Number(v))?Number(v):undefined);
   const b = req.body || {};
   let payload;
   
-  switch (toolKey) {
+  switch (key) {
     case 'budget': {
       payload = {
         income: safeNum(b.summeEinnahmen ?? b.totalIncome ?? b.income),
@@ -251,11 +239,11 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     }
   }
   
-  console.log('[SESSION] Tool saved:', toolKey, Object.keys(payload||{}));
+  console.log('[SESSION] Tool saved:', key, Object.keys(payload||{}));
 
   try {
     const update = {};
-    update[`toolDaten.${toolKey}`] = payload;
+    update[`toolDaten.${key}`] = payload;
 
     const updatedKunde = await Kunde.findByIdAndUpdate(
       kundenId,
@@ -269,27 +257,27 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     
     let sessionPatch = {};
     
-    if (toolKey === 'budget') {
+    if (key === 'budget') {
       sessionPatch.budget = payload;
-    } else if (toolKey === 'savingsPlanner') {
+    } else if (key === 'savingsPlanner') {
       sessionPatch.savingsPlanner = payload;
-    } else if (toolKey === 'pension') {
+    } else if (key === 'pension') {
       sessionPatch.pension = payload;
-    } else if (toolKey === 'health') {
+    } else if (key === 'health') {
       sessionPatch.health = payload;
-    } else if (toolKey === 'property') {
+    } else if (key === 'property') {
       sessionPatch.property = payload;
-    } else if (toolKey === 'children') {
+    } else if (key === 'children') {
       sessionPatch.children = payload;
     } else {
       // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
-      console.log(`[SESSION] Tool ${raw} (${toolKey}) gespeichert, aber keine PDF-Section definiert`);
+      console.log(`[SESSION] Tool ${toolName} (${key}) gespeichert, aber keine PDF-Section definiert`);
     }
     
     // Speichere in Advice-Session falls Patch vorhanden
     if (Object.keys(sessionPatch).length > 0) {
       await adviceRepository.update(kundenId, sessionPatch);
-      console.log('[SESSION] Tool saved:', toolKey);
+      console.log('[SESSION] Tool saved:', key);
     }
 
     res.status(200).json(updatedKunde);

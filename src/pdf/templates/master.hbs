@@ -148,29 +148,29 @@
         {{> executiveSummary}}
     {{/if}}
     
-    {{#if sections.budget.present}}
-        {{> budget sections.budget}}
-    {{/if}}
-    
-    {{#if sections.savingsPlanner.present}}
-        {{> savings sections.savingsPlanner}}
-    {{/if}}
-    
-    {{#if sections.pension.present}}
-        {{> pension sections.pension}}
-    {{/if}}
-    
-    {{#if sections.health.present}}
-        {{> health sections.health}}
-    {{/if}}
-    
-    {{#if sections.property.present}}
-        {{> property sections.property}}
-    {{/if}}
-    
-    {{#if sections.children.present}}
-        {{> children sections.children}}
-    {{/if}}
+{{#if sections.budget.present}}
+{{> budget sections.budget}}
+{{/if}}
+
+{{#if sections.savingsPlanner.present}}
+{{> savings sections.savingsPlanner}}
+{{/if}}
+
+{{#if sections.pension.present}}
+{{> pension sections.pension}}
+{{/if}}
+
+{{#if sections.health.present}}
+{{> health sections.health}}
+{{/if}}
+
+{{#if sections.property.present}}
+{{> property sections.property}}
+{{/if}}
+
+{{#if sections.children.present}}
+{{> children sections.children}}
+{{/if}}
     
     {{> appendix}}
 
