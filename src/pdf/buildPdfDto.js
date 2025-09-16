@@ -406,16 +406,16 @@ async function buildPdfDto(sessionRaw, options = {}) {
   
   // ---------- SavingsPlanner ----------
   const Sraw = session.savingsPlanner || {};
-  const S = (typeof Sraw.toObject==='function') ? Sraw.toObject() : Sraw;
-  const startCapital = S.startCapital ?? S.startkapital;
-  const monthlySaving = S.monthlySaving ?? S.sparrate;
-  const rate = S.rate ?? S.zinssatz;
-  const years = S.years ?? S.laufzeit;
-  const endValue = S.endValue ?? S.endkapital;
+  const S = (typeof Sraw.toObject === 'function') ? Sraw.toObject() : Sraw;
   const chartData = Array.isArray(S.chartData) ? S.chartData : [];
+  const startCapital = S.startCapital;
+  const monthlySaving = S.monthlySaving;
+  const rate = S.rate;
+  const years = S.years;
+  const endValue = S.endValue;
 
   const savingsSec = {
-    present: [startCapital, monthlySaving, rate, years, endValue].some(v => v !== undefined) || chartData.length>0,
+    present: !!(startCapital || monthlySaving || rate || years || endValue || chartData.length),
     title: 'Sparrechner',
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
     chartData
