@@ -1,20 +1,215 @@
-{{#if keyFigures}}
+<div class="section budget-section">
+  <h2 class="section-title">{{title}}</h2>
+  
+  {{#if keyFigures}}
+  <div class="key-figures">
+    <h3>Zusammenfassung</h3>
+    <div class="figures-grid">
+      {{#if keyFigures.income}}
+      <div class="figure-item income">
+        <span class="figure-label">Einnahmen:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.income}}</span>
+      </div>
+      {{/if}}
+      {{#if keyFigures.expenses}}
+      <div class="figure-item expense">
+        <span class="figure-label">Ausgaben:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.expenses}}</span>
+      </div>
+      {{/if}}
+      {{#if keyFigures.savings}}
+      <div class="figure-item">
+        <span class="figure-label">Sparquote:</span>
+        <span class="figure-value">{{formatPercentage keyFigures.savings}}</span>
+      </div>
+      {{/if}}
+      {{#if keyFigures.available}}
+      <div class="figure-item highlight">
+        <span class="figure-label">Verfügbar/Monat:</span>
+        <span class="figure-value">{{formatCurrency keyFigures.available}}</span>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+  {{/if}}
 
-{{#if keyFigures.income}}
-Einnahmen: {{formatCurrency keyFigures.income}}
-{{/if}}
-{{#if keyFigures.expenses}}
-Ausgaben: {{formatCurrency keyFigures.expenses}}
-{{/if}}
-{{#if keyFigures.savings}}
-Sparquote: {{formatPercentage keyFigures.savings}}
-{{/if}}
-{{#if keyFigures.available}}
-Verfügbar/Monat: {{formatCurrency keyFigures.available}}
-{{/if}}
+  {{#if grid.values}}
+  <div class="budget-matrix">
+    <h3>Budget-Details</h3>
+    <table class="budget-table">
+      <thead>
+        <tr>
+          <th>Kategorie</th>
+          <th>Kunde</th>
+          <th>Familie</th>
+          <th>Gesamt</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each grid.values}}
+        <tr class="budget-row">
+          <td class="category-name">{{@key}}</td>
+          <td class="amount">{{formatCurrency this.kunde}}</td>
+          <td class="amount">{{formatCurrency this.familie}}</td>
+          <td class="amount total">{{formatCurrency (add this.kunde this.familie)}}</td>
+        </tr>
+        {{/each}}
+        {{#each grid.customRows}}
+        <tr class="budget-row custom">
+          <td class="category-name">{{this.name}}</td>
+          <td class="amount">{{formatCurrency this.kunde}}</td>
+          <td class="amount">{{formatCurrency this.familie}}</td>
+          <td class="amount total">{{formatCurrency (add this.kunde this.familie)}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{/if}}
 
-{{/if}}
+  {{#if notes}}
+  <div class="notes">
+    <h3>Notizen</h3>
+    <p>{{notes}}</p>
+  </div>
+  {{/if}}
+</div>
 
-{{#if notes}}
-{{notes}}
-{{/if}}
+<style>
+.budget-section {
+  margin-bottom: 2rem;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.key-figures h3,
+.budget-matrix h3,
+.notes h3 {
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.figures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.figure-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border-left: 4px solid #2563eb;
+}
+
+.figure-item.income {
+  border-left-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.figure-item.expense {
+  border-left-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.figure-item.highlight {
+  background-color: #eff6ff;
+  border-left-color: #1d4ed8;
+  font-weight: 600;
+}
+
+.figure-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.figure-value {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.budget-matrix {
+  margin: 1.5rem 0;
+}
+
+.budget-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.budget-table thead {
+  background-color: #f3f4f6;
+}
+
+.budget-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.budget-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+.budget-table .category-name {
+  font-weight: 500;
+  color: #374151;
+}
+
+.budget-table .amount {
+  text-align: right;
+  font-weight: 500;
+}
+
+.budget-table .amount.total {
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.budget-row.custom {
+  background-color: #f9fafb;
+  font-style: italic;
+}
+
+.budget-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.notes {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border-left: 4px solid #10b981;
+}
+
+.notes p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+</style>

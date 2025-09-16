@@ -99,6 +99,20 @@ function registerHelpers() {
     });
   });
 
+  // Convert string to number, handling Swiss formatting
+  handlebars.registerHelper('toNumber', function(v) {
+    const s = String(v ?? '').replace(/\sCHF\s/i, '').replace(/'/g, '').replace(/,/g, '.');
+    const n = Number(s);
+    return isNaN(n) ? 0 : n;
+  });
+
+  // Add two numbers
+  handlebars.registerHelper('add', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA + numB;
+  });
+
   // Number formatter - for general numbers
   handlebars.registerHelper('formatNumber', function(value, decimals = 0) {
     const n = Number(value);

@@ -390,31 +390,37 @@ async function buildPdfDto(sessionRaw, options = {}) {
     available = (income !== undefined) ? (income - expenses) : undefined;
   }
 
+  const grid = Array.isArray(B.customRows) || B.values
+    ? { values: B.values || {}, customRows: B.customRows || [] }
+    : undefined;
+
   const budgetSec = {
-    present: [income, expenses, savings, available].some(x => x !== undefined),
+    present: [income, expenses, savings, available].some(x => x !== undefined) || !!grid,
     title: 'Budget',
     keyFigures: { income, expenses, savings, available },
+    grid,
     notes
   };
   console.log('[PDF DTO][budget]', budgetSec);
   console.log('[PDF] raw budget object (keys):', Object.keys(B||{}));
   
   // ---------- SavingsPlanner ----------
-  const S = session.savingsPlanner || {};
-  const startCapital = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
-  const monthlySaving = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
-  const rate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
-  const years = val(S.years) ?? val(S.jahre) ?? val(S.laufzeit);
-  const endValue = val(S.endValue) ?? val(S.endAmount) ?? val(S.endkapital);
-  const chartData = S.chartData ?? S.chart ?? S.graph ?? undefined;
+  const Sraw = session.savingsPlanner || {};
+  const S = (typeof Sraw.toObject==='function') ? Sraw.toObject() : Sraw;
+  const startCapital = S.startCapital ?? S.startkapital;
+  const monthlySaving = S.monthlySaving ?? S.sparrate;
+  const rate = S.rate ?? S.zinssatz;
+  const years = S.years ?? S.laufzeit;
+  const endValue = S.endValue ?? S.endkapital;
+  const chartData = Array.isArray(S.chartData) ? S.chartData : [];
 
   const savingsSec = {
-    present: [startCapital, monthlySaving, rate, years, endValue].some(v => v !== undefined),
+    present: [startCapital, monthlySaving, rate, years, endValue].some(v => v !== undefined) || chartData.length>0,
     title: 'Sparrechner',
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
-    chartData: chartData
+    chartData
   };
-  console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, hasChart: !!chartData, points: Array.isArray(chartData)?chartData.length:0 });
+  console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, points: chartData.length });
   
   const pensionSec = buildPensionSection(merged.pension);
   const healthSec = buildHealthSection(merged.health);

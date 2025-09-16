@@ -142,7 +142,19 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   
   // ✅ Tool-Namen normalisieren und defensiv mappen
   const toolName = (req.params.toolname || '').toLowerCase();
-  const key = toolName === 'sparrechner' || toolName === 'savingsplanner' ? 'savingsPlanner' : toolName;
+  const keyMap = {
+    sparrechner: 'savingsPlanner',
+    savingsplanner: 'savingsPlanner',
+    budget: 'budget',
+    pension: 'pension',
+    gesundheit: 'health',
+    health: 'health',
+    immobilien: 'property',
+    property: 'property',
+    kinder: 'children',
+    children: 'children'
+  };
+  const key = keyMap[toolName] || toolName;
   console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(req.body||{}));
   
   if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
@@ -291,7 +303,19 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
 router.get('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
   const kundenId = req.session.kundenId;
   const toolName = (req.params.toolname || '').toLowerCase();
-  const key = toolName === 'sparrechner' || toolName === 'savingsplanner' ? 'savingsPlanner' : toolName;
+  const keyMap = {
+    sparrechner: 'savingsPlanner',
+    savingsplanner: 'savingsPlanner',
+    budget: 'budget',
+    pension: 'pension',
+    gesundheit: 'health',
+    health: 'health',
+    immobilien: 'property',
+    property: 'property',
+    kinder: 'children',
+    children: 'children'
+  };
+  const key = keyMap[toolName] || toolName;
   console.log('[SESSION] Loading tool', toolName, '->', key);
 
   try {

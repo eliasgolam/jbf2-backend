@@ -1,3 +1,4 @@
+{{#if chartData}}
 <div class="section savings-section">
   <h2 class="section-title">{{title}}</h2>
   
@@ -39,7 +40,6 @@
   </div>
   {{/if}}
 
-  {{#if chartData}}
   <div class="chart-container">
     <h3>Kapitalentwicklung</h3>
     <table class="chart-table">
@@ -59,33 +59,6 @@
       </tbody>
     </table>
   </div>
-  {{/if}}
-
-  {{#if schedule}}
-  <div class="schedule-table">
-    <h3>Jahresübersicht</h3>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Jahr</th>
-          <th>Startkapital</th>
-          <th>Monatliche Rate</th>
-          <th>Endkapital</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each schedule}}
-        <tr>
-          <td>{{year}}</td>
-          <td>{{formatCurrency startCapital}}</td>
-          <td>{{formatCurrency monthlySaving}}</td>
-          <td class="highlight">{{formatCurrency endValue}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
-  {{/if}}
 
   {{#if notes}}
   <div class="notes">
@@ -112,7 +85,6 @@
 
 .key-figures h3,
 .chart-container h3,
-.schedule-table h3,
 .notes h3 {
   color: #374151;
   font-size: 1.1rem;
@@ -159,21 +131,6 @@
   text-align: center;
 }
 
-.chart-wrapper {
-  display: inline-block;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.savings-chart {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
 .chart-table {
   width: 100%;
   border-collapse: collapse;
@@ -208,47 +165,6 @@
   font-weight: 600;
 }
 
-.schedule-table {
-  margin: 1.5rem 0;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.data-table thead {
-  background-color: #f3f4f6;
-}
-
-.data-table th {
-  padding: 0.75rem;
-  text-align: left;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.data-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
-  color: #1f2937;
-}
-
-.data-table td.highlight {
-  font-weight: 600;
-  color: #1d4ed8;
-}
-
-.data-table tbody tr:hover {
-  background-color: #f9fafb;
-}
-
 .notes {
   margin: 1.5rem 0;
   padding: 1rem;
@@ -263,3 +179,4 @@
   line-height: 1.6;
 }
 </style>
+{{/if}}
