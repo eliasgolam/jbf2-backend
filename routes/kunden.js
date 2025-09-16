@@ -3,6 +3,20 @@ const router = express.Router();
 const Kunde = require('../models/Kunde');
 const checkKundenSession = require('../middleware/sessionKunde');
 
+// ✅ Zentrale keyMap für alle Tools
+const keyMap = {
+  budget: 'budget',
+  sparrechner: 'savingsPlanner',
+  savingsplanner: 'savingsPlanner',
+  pension: 'pension',
+  gesundheit: 'health',
+  health: 'health',
+  immobilien: 'property',
+  property: 'property',
+  kinder: 'children',
+  children: 'children'
+};
+
 // 🟢 Neuen Kunden anlegen (öffentlich aufrufbar)
 router.post('/', async (req, res) => {
   console.log("📥 Eingehende Kundendaten:", req.body);
@@ -142,20 +156,10 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   
   // ✅ Tool-Namen normalisieren und defensiv mappen
   const toolName = (req.params.toolname || '').toLowerCase();
-  const keyMap = {
-    sparrechner: 'savingsPlanner',
-    savingsplanner: 'savingsPlanner',
-    budget: 'budget',
-    pension: 'pension',
-    gesundheit: 'health',
-    health: 'health',
-    immobilien: 'property',
-    property: 'property',
-    kinder: 'children',
-    children: 'children'
-  };
   const key = keyMap[toolName] || toolName;
-  console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(req.body||{}));
+  const payload = req.body || {};
+  
+  console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(payload));
   
   if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
     return res.status(400).json({ error: `Unsupported toolname: ${toolName}` });
@@ -303,18 +307,6 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
 router.get('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
   const kundenId = req.session.kundenId;
   const toolName = (req.params.toolname || '').toLowerCase();
-  const keyMap = {
-    sparrechner: 'savingsPlanner',
-    savingsplanner: 'savingsPlanner',
-    budget: 'budget',
-    pension: 'pension',
-    gesundheit: 'health',
-    health: 'health',
-    immobilien: 'property',
-    property: 'property',
-    kinder: 'children',
-    children: 'children'
-  };
   const key = keyMap[toolName] || toolName;
   console.log('[SESSION] Loading tool', toolName, '->', key);
 
