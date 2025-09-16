@@ -157,9 +157,8 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   // ✅ Tool-Namen normalisieren und defensiv mappen
   const toolName = (req.params.toolname || '').toLowerCase();
   const key = keyMap[toolName] || toolName;
-  const payload = req.body || {};
   
-  console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(payload));
+  console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(req.body || {}));
   
   if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
     return res.status(400).json({ error: `Unsupported toolname: ${toolName}` });
