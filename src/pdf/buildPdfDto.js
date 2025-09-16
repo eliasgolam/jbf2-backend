@@ -8,7 +8,13 @@ const { loadToolsForCustomer } = require('../services/toolLoader');
 
 // Helper functions for robust data handling
 function val(v) { return v === null || v === undefined ? undefined : v; }
-function plain(obj) { return (obj && typeof obj.toObject === 'function') ? obj.toObject() : obj; }
+function plain(o) { return (o && typeof o.toObject === 'function') ? o.toObject() : o; }
+function toNumberSafe(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  const s = String(v).replace(/\sCHF\s/i, '').replace(/'/g, '').replace(/,/g, '.');
+  const n = Number(s);
+  return isNaN(n) ? 0 : n;
+}
 
 /**
  * Safe number conversion with fallback to 0
@@ -293,9 +299,9 @@ function buildExecutiveSummary(session) {
  * @param {Object} options - Options including selectedTopics
  * @returns {Promise<Object>} PDF-ready DTO
  */
-async function buildPdfDto(rawSession, options = {}) {
+async function buildPdfDto(sessionRaw, options = {}) {
   // Session "ent-proxen" - convert Mongoose documents to plain objects
-  const session = plain(rawSession) || {};
+  const session = plain(sessionRaw) || {};
   session.budget = plain(session.budget) || {};
   session.savingsPlanner = plain(session.savingsPlanner) || {};
   session.pension = plain(session.pension) || {};
@@ -351,33 +357,50 @@ async function buildPdfDto(rawSession, options = {}) {
   
   // Build each section separately and log present flags
   // ---------- Budget ----------
-  const Braw = merged.budget || {};
-  const B = (typeof Braw.toObject === 'function') ? Braw.toObject() : Braw;
-  const income =
-    val(B.income) ??
-    val(B.totalIncome) ??
-    val(B.summeEinnahmen) ??
-    val(B?.totals?.income);
-  const expenses =
-    val(B.expenses) ??
-    val(B.totalExpenses) ??
-    val(B.summeAusgaben) ??
-    val(B?.totals?.expense);
-  const savings = val(B.savings) ?? val(B.sparquote) ?? val(B.savingsRate);
-  const available = val(B.available) ?? ((income!==undefined && expenses!==undefined) ? income - expenses : undefined);
+  const B = session.budget || {};
+  let income, expenses, savings, available, notes = B.notes;
+
+  // a) Klassische Felder bevorzugen, falls vorhanden
+  if (B.income !== undefined || B.expenses !== undefined || B.available !== undefined) {
+    income = val(B.income);
+    expenses = val(B.expenses);
+    savings = val(B.savings) ?? val(B.savingsRate) ?? val(B.sparquote);
+    available = val(B.available) ?? (income !== undefined && expenses !== undefined ? income - expenses : undefined);
+  } else if (B.values && typeof B.values === 'object') {
+    // b) Neues Grid-Schema aus values aggregieren
+    const v = B.values || {};
+    // Einkommen explizit aus Einkommens-Kategorien ziehen
+    const incomeCategories = ['Einkommen', 'Nettoeinkommen', 'Lohn', 'Gehalt', 'Einkünfte'];
+    let incomeFromGrid = undefined;
+    for (const cat of incomeCategories) {
+      if (v[cat]) {
+        incomeFromGrid = toNumberSafe(v[cat].kunde) + toNumberSafe(v[cat].familie);
+        break; // Erste gefundene Einkommens-Kategorie verwenden
+      }
+    }
+
+    // Alle Ausgabenkategorien außer Einkommens-Kategorien summieren
+    let totalExpenses = 0;
+    for (const [cat, row] of Object.entries(v)) {
+      if (incomeCategories.includes(cat)) continue;
+      totalExpenses += toNumberSafe(row?.kunde) + toNumberSafe(row?.familie);
+    }
+    income = income ?? incomeFromGrid;
+    expenses = totalExpenses;
+    available = (income !== undefined) ? (income - expenses) : undefined;
+  }
 
   const budgetSec = {
-    present: [income, expenses, savings, available].some(v => v !== undefined),
+    present: [income, expenses, savings, available].some(x => x !== undefined),
     title: 'Budget',
     keyFigures: { income, expenses, savings, available },
-    notes: B.notes
+    notes
   };
   console.log('[PDF DTO][budget]', budgetSec);
   console.log('[PDF] raw budget object (keys):', Object.keys(B||{}));
   
   // ---------- SavingsPlanner ----------
-  const S = merged.savingsPlanner || {};
-  function val(v){ return v === null || v === undefined ? undefined : v; }
+  const S = session.savingsPlanner || {};
   const startCapital = val(S.startCapital) ?? val(S.startkapital) ?? val(S.anfangskapital);
   const monthlySaving = val(S.monthlySaving) ?? val(S.monthlyRate) ?? val(S.sparrate);
   const rate = val(S.rate) ?? val(S.ratePercent) ?? val(S.zinssatz) ?? val(S.interestRate);
@@ -391,11 +414,7 @@ async function buildPdfDto(rawSession, options = {}) {
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
     chartData
   };
-  console.log('[PDF DTO][savingsPlanner]', {
-    present: savingsSec.present,
-    hasChart: !!savingsSec.chartData,
-    points: Array.isArray(savingsSec.chartData)? savingsSec.chartData.length : 0
-  });
+  console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, hasChart: !!chartData, points: Array.isArray(chartData)?chartData.length:0 });
   
   const pensionSec = buildPensionSection(merged.pension);
   const healthSec = buildHealthSection(merged.health);

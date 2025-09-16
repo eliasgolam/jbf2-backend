@@ -142,7 +142,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   
   // ✅ Tool-Namen normalisieren und defensiv mappen
   const toolName = (req.params.toolname || '').toLowerCase();
-  const key = toolName === 'sparrechner' ? 'savingsPlanner' : toolName;
+  const key = toolName === 'sparrechner' || toolName === 'savingsplanner' ? 'savingsPlanner' : toolName;
   console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(req.body||{}));
   
   if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
@@ -290,11 +290,13 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
 // 🔒 Tool-Daten LADEN – nur für aktiven Kunden
 router.get('/session/toolDaten/:toolname', checkKundenSession, async (req, res) => {
   const kundenId = req.session.kundenId;
-  const toolname = req.params.toolname;
+  const toolName = (req.params.toolname || '').toLowerCase();
+  const key = toolName === 'sparrechner' || toolName === 'savingsplanner' ? 'savingsPlanner' : toolName;
+  console.log('[SESSION] Loading tool', toolName, '->', key);
 
   try {
     const kunde = await Kunde.findById(kundenId).lean();
-    const daten = kunde?.toolDaten?.[toolname] || null;
+    const daten = kunde?.toolDaten?.[key] || null;
 
     res.status(200).json(daten);
   } catch (err) {
