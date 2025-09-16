@@ -412,7 +412,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     present: [startCapital, monthlySaving, rate, years, endValue].some(v => v !== undefined),
     title: 'Sparrechner',
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
-    chartData
+    chartData: chartData
   };
   console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, hasChart: !!chartData, points: Array.isArray(chartData)?chartData.length:0 });
   
