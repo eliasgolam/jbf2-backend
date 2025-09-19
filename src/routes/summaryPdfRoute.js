@@ -175,15 +175,12 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
       expanded: selectedTopics 
     });
     
-    // If caller passes tools inline (belt-and-braces), merge them
+    // If caller passes tools inline (belt-and-braces), merge values in (always prefer inline)
     if (req.body?.tools) {
-      const hasData = (o) => o && Object.keys(o).length > 0;
-      if (!hasData(session.budget) && hasData(req.body.tools.budget)) {
-        session.budget = req.body.tools.budget;
-      }
-      if (!hasData(session.savingsPlanner) && hasData(req.body.tools.savingsPlanner)) {
-        session.savingsPlanner = req.body.tools.savingsPlanner;
-      }
+      const merge = (dst, src) => (src && typeof src === 'object') ? { ...(dst||{}), ...src } : dst;
+      session.budget = merge(session.budget, req.body.tools.budget);
+      session.savingsPlanner = merge(session.savingsPlanner, req.body.tools.savingsPlanner);
+      session.interestCompare = merge(session.interestCompare, req.body.tools.interestCompare);
     }
 
     const pdfDto = await buildPdfDto(session, options);
