@@ -14,14 +14,14 @@ const { logSecurityEvent, logPerformance } = require('../../middleware/logging')
 
 // Topic mapping for PDF filtering
 const topicMap = {
-  lebensstandard: ['budget','savingsPlanner','health'],
-  'lebensstandard beibehalten': ['budget','savingsPlanner','health'],
-  lebenstandard: ['budget','savingsPlanner','health'],
-  vermoegen: ['budget','savingsPlanner'],
-  'vermögen': ['budget','savingsPlanner'],
-  'vermögen aufbauen': ['budget','savingsPlanner'],
-  vorsorge: ['budget','savingsPlanner','pension'],
-  'pension vorsorgen': ['budget','savingsPlanner','pension'],
+  lebensstandard: ['budget','savingsPlanner','interestCompare','health'],
+  'lebensstandard beibehalten': ['budget','savingsPlanner','interestCompare','health'],
+  lebenstandard: ['budget','savingsPlanner','interestCompare','health'],
+  vermoegen: ['budget','savingsPlanner','interestCompare'],
+  'vermögen': ['budget','savingsPlanner','interestCompare'],
+  'vermögen aufbauen': ['budget','savingsPlanner','interestCompare'],
+  vorsorge: ['budget','savingsPlanner','interestCompare','pension'],
+  'pension vorsorgen': ['budget','savingsPlanner','interestCompare','pension'],
   gesundheit: ['budget','health'],
   kranken: ['budget','health'],
   immobilien: ['budget','property'],
