@@ -46,24 +46,24 @@ async function loadToolsForCustomer(kundenId) {
       if (!hasNumeric) {
         income = 0;
         expenses = 0;
-        if (values) {
-          const categories = [
-            { name: 'einkommen', type: 'income' },
-            { name: 'ausgaben', type: 'expense' }
-          ];
-          Object.keys(values).forEach(catName => {
-            const cat = categories.find(c => c.name === catName);
-            if (cat) {
-              const v = values[catName] || {};
-              const sum = (Number(v.kunde)||0) + (Number(v.familie)||0);
-              if (cat.type === 'income') income += sum; else expenses += sum;
+        if (values && typeof values === 'object') {
+          const incomeCategories = ['Einkommen','Nettoeinkommen','Lohn','Gehalt','Einkünfte'];
+          let incomeFromGrid = 0;
+          Object.entries(values).forEach(([catName, v]) => {
+            const sum = (Number(v?.kunde)||0) + (Number(v?.familie)||0);
+            if (incomeCategories.includes(catName)) {
+              incomeFromGrid += sum;
+            } else {
+              expenses += sum;
             }
           });
+          income += incomeFromGrid;
         }
-        if (customRows) {
+        if (Array.isArray(customRows)) {
           customRows.forEach(row => {
             const sum = (Number(row.kunde)||0) + (Number(row.familie)||0);
-            if (row.type === 'income') income += sum; else expenses += sum;
+            // custom rows are expenses by default
+            expenses += sum;
           });
         }
         availableNumeric = income - expenses;

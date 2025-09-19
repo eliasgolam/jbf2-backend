@@ -398,8 +398,8 @@ async function buildPdfDto(sessionRaw, options = {}) {
   // If still undefined but fallback budget exists with numeric fields, use them
   if ((income === undefined || expenses === undefined || available === undefined) && fallback?.budget) {
     const Fb = fallback.budget;
-    income = income ?? val(Fb.income);
-    expenses = expenses ?? val(Fb.expenses);
+    income = income ?? val(Fb.income ?? Fb.totalIncome);
+    expenses = expenses ?? val(Fb.expenses ?? Fb.totalExpenses);
     savings = savings ?? val(Fb.savings);
     available = available ?? (income !== undefined && expenses !== undefined ? income - expenses : val(Fb.available));
   }
