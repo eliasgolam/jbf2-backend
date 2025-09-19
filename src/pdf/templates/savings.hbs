@@ -42,22 +42,26 @@
 
   <div class="chart-container">
     <h3>Kapitalentwicklung</h3>
-    <table class="chart-table">
-      <thead>
-        <tr>
-          <th>Jahr</th>
-          <th>Vermögen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each chartData}}
-        <tr>
-          <td>{{#if this.year}}{{this.year}}{{else}}{{this.x}}{{/if}}</td>
-          <td>{{#if this.value}}{{formatCurrency this.value}}{{else}}{{formatCurrency this.y}}{{/if}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
+    {{#if chartImage}}
+      <img class="chart-image" src="{{chartImage}}" alt="Kapitalentwicklung" />
+    {{else}}
+      <table class="chart-table">
+        <thead>
+          <tr>
+            <th>Jahr</th>
+            <th>Vermögen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each chartData}}
+          <tr>
+            <td>{{#if this.year}}{{this.year}}{{else}}{{this.x}}{{/if}}</td>
+            <td>{{#if this.value}}{{formatCurrency this.value}}{{else}}{{formatCurrency this.y}}{{/if}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
   </div>
 
   {{#if notes}}
@@ -129,6 +133,13 @@
 .chart-container {
   margin: 1.5rem 0;
   text-align: center;
+}
+
+.chart-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .chart-table {

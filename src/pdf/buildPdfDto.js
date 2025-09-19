@@ -414,11 +414,63 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const years = S.years;
   const endValue = S.endValue;
 
+  // Build chart image from provided chartData or computed schedule
+  let chartImage;
+  try {
+    // Prefer frontend-provided chartData (expects points with x/year and y/value)
+    let scheduleFromChart = [];
+    if (Array.isArray(chartData) && chartData.length >= 2) {
+      scheduleFromChart = chartData
+        .filter(p => (p.x ?? p.year) !== undefined && (p.y ?? p.value) !== undefined)
+        .map(p => ({
+          year: Number(p.x ?? p.year),
+          yearEndCapital: Number(p.y ?? p.value)
+        }))
+        .filter(r => isFinite(r.year) && isFinite(r.yearEndCapital) && r.year > 0)
+        .sort((a,b) => a.year - b.year);
+    }
+
+    let scheduleToUse = scheduleFromChart;
+
+    if (!scheduleToUse || scheduleToUse.length < 2) {
+      // Fallback: compute schedule from numeric inputs
+      const interval = (S.interval === 'yearly') ? 'yearly' : 'monthly';
+      const start = Number(startCapital) || 0;
+      const contribution = Number(monthlySaving) || 0;
+      const rPercent = Number(rate) || 0;
+      const numYears = Number(years) || 0;
+
+      let currentCapital = start;
+      if (interval === 'monthly') {
+        const monthlyRateDecimal = rPercent / 100 / 12;
+        for (let year = 1; year <= numYears; year++) {
+          for (let m = 1; m <= 12; m++) {
+            currentCapital = (currentCapital + contribution) * (1 + monthlyRateDecimal);
+          }
+          scheduleToUse.push({ year, yearEndCapital: Math.round(currentCapital * 100) / 100 });
+        }
+      } else {
+        const yearlyRateDecimal = rPercent / 100;
+        for (let year = 1; year <= numYears; year++) {
+          currentCapital = (currentCapital + contribution) * (1 + yearlyRateDecimal);
+          scheduleToUse.push({ year, yearEndCapital: Math.round(currentCapital * 100) / 100 });
+        }
+      }
+    }
+
+    if (scheduleToUse && scheduleToUse.length >= 2) {
+      chartImage = await buildSavingsChart(scheduleToUse);
+    }
+  } catch (e) {
+    console.warn('[PDF DTO][savingsPlanner] chart image build failed:', e.message);
+  }
+
   const savingsSec = {
     present: !!(startCapital || monthlySaving || rate || years || endValue || chartData.length),
     title: 'Sparrechner',
     keyFigures: { startCapital, monthlySaving, rate, years, endValue },
-    chartData
+    chartData,
+    chartImage
   };
   console.log('[PDF DTO][savingsPlanner]', { present: savingsSec.present, points: chartData.length });
   
