@@ -395,6 +395,15 @@ async function buildPdfDto(sessionRaw, options = {}) {
     available = (income !== undefined) ? (income - expenses) : undefined;
   }
 
+  // If still undefined but fallback budget exists with numeric fields, use them
+  if ((income === undefined || expenses === undefined || available === undefined) && fallback?.budget) {
+    const Fb = fallback.budget;
+    income = income ?? val(Fb.income);
+    expenses = expenses ?? val(Fb.expenses);
+    savings = savings ?? val(Fb.savings);
+    available = available ?? (income !== undefined && expenses !== undefined ? income - expenses : val(Fb.available));
+  }
+
   const grid = Array.isArray(B.customRows) || B.values
     ? { values: B.values || {}, customRows: B.customRows || [] }
     : undefined;
