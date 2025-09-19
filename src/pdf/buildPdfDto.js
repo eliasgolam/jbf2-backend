@@ -357,7 +357,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   
   // Build each section separately and log present flags
   // ---------- Budget ----------
-  const B = session.budget || {};
+  const B = merged.budget || {};
   let income, expenses, savings, available, notes = B.notes;
 
   // a) Klassische Felder bevorzugen, falls vorhanden
@@ -405,7 +405,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   console.log('[PDF] raw budget object (keys):', Object.keys(B||{}));
   
   // ---------- SavingsPlanner ----------
-  const Sraw = session.savingsPlanner || {};
+  const Sraw = merged.savingsPlanner || {};
   const S = (typeof Sraw.toObject === 'function') ? Sraw.toObject() : Sraw;
   const chartData = Array.isArray(S.chartData) ? S.chartData : [];
   const startCapital = S.startCapital;
