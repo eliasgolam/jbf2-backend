@@ -15,11 +15,18 @@ const { logSecurityEvent, logPerformance } = require('../../middleware/logging')
 // Topic mapping for PDF filtering
 const topicMap = {
   lebensstandard: ['budget','savingsPlanner','health'],
+  'lebensstandard beibehalten': ['budget','savingsPlanner','health'],
+  lebenstandard: ['budget','savingsPlanner','health'],
   vermoegen: ['budget','savingsPlanner'],
+  'vermögen': ['budget','savingsPlanner'],
+  'vermögen aufbauen': ['budget','savingsPlanner'],
   vorsorge: ['budget','savingsPlanner','pension'],
+  'pension vorsorgen': ['budget','savingsPlanner','pension'],
+  gesundheit: ['budget','health'],
   kranken: ['budget','health'],
   immobilien: ['budget','property'],
   kinder: ['budget','savingsPlanner','children'],
+  'kinder absichern': ['budget','savingsPlanner','children'],
   alle: ['budget','savingsPlanner','pension','health','property','children']
 };
 
@@ -146,16 +153,16 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     // Process selectedTopics through topicMap
     let selectedTopics = req.body?.selectedTopics || session?.selectedTopics || [];
     if (Array.isArray(selectedTopics) && selectedTopics.length > 0) {
-      // Expand topic categories to individual sections
+      // Expand topic categories to individual sections (case-insensitive)
       const expandedTopics = new Set();
       selectedTopics.forEach(topic => {
-        if (topicMap[topic]) {
-          topicMap[topic].forEach(section => expandedTopics.add(section));
-        } else {
-          expandedTopics.add(topic);
+        const key = String(topic || '').toLowerCase();
+        if (topicMap[key]) {
+          topicMap[key].forEach(section => expandedTopics.add(section));
         }
       });
-      selectedTopics = Array.from(expandedTopics);
+      // If nothing recognizable was selected, don't filter at all
+      selectedTopics = expandedTopics.size > 0 ? Array.from(expandedTopics) : [];
     }
     
     const options = {

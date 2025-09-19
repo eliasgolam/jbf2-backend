@@ -210,7 +210,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   console.log('[SESSION] Saving tool', toolName, '->', key, 'keys:', Object.keys(payload || {}));
   
   // ✅ Defensive Datenextraktion je Tool (legacy compatibility)
-  const safeNum = (v) => v===null||v===undefined ? undefined : (isFinite(Number(v))?Number(v):undefined);
+  const safeNum = (v) => v===null||v===undefined||v==='' ? 0 : (isFinite(Number(v))?Number(v):0);
   const b = payload || {};
   let processedPayload;
   
