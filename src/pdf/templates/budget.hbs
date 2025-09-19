@@ -5,30 +5,22 @@
   <div class="key-figures">
     <h3>Zusammenfassung</h3>
     <div class="figures-grid">
-      {{#if keyFigures.income}}
       <div class="figure-item income">
         <span class="figure-label">Einnahmen:</span>
         <span class="figure-value">{{formatCurrency keyFigures.income}}</span>
       </div>
-      {{/if}}
-      {{#if keyFigures.expenses}}
       <div class="figure-item expense">
         <span class="figure-label">Ausgaben:</span>
         <span class="figure-value">{{formatCurrency keyFigures.expenses}}</span>
       </div>
-      {{/if}}
-      {{#if keyFigures.savings}}
       <div class="figure-item">
         <span class="figure-label">Sparquote:</span>
         <span class="figure-value">{{formatPercentage keyFigures.savings}}</span>
       </div>
-      {{/if}}
-      {{#if keyFigures.available}}
       <div class="figure-item highlight">
         <span class="figure-label">Verfügbar/Monat:</span>
         <span class="figure-value">{{formatCurrency keyFigures.available}}</span>
       </div>
-      {{/if}}
     </div>
   </div>
   {{/if}}
