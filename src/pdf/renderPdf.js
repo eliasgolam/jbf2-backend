@@ -165,6 +165,11 @@ function registerHelpers() {
     return Array.isArray(array) ? array.length : 0;
   });
 
+  // String concat helper (used in Zinsvergleich table)
+  handlebars.registerHelper('concat', function() {
+    return Array.from(arguments).slice(0, -1).join('');
+  });
+
   // Debug helper
   handlebars.registerHelper('debug', function(value) {
     console.log('Handlebars Debug:', value);
