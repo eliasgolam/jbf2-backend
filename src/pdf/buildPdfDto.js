@@ -322,13 +322,14 @@ async function buildPdfDto(sessionRaw, options = {}) {
 
   // Optionaler Fallback-Loader für fehlende Tool-Daten
   const kundenId = session?.customerId || session?.meta?.clientId || session?.kundenId || options?.kundenId;
+  const hasData = (o) => o && Object.keys(o).length > 0;
   const needs = { 
-    budget: !session?.budget, 
-    savingsPlanner: !session?.savingsPlanner, 
-    pension: !session?.pension, 
-    health: !session?.health, 
-    property: !session?.property, 
-    children: !session?.children 
+    budget: !hasData(session?.budget), 
+    savingsPlanner: !hasData(session?.savingsPlanner), 
+    pension: !hasData(session?.pension), 
+    health: !hasData(session?.health), 
+    property: !hasData(session?.property), 
+    children: !hasData(session?.children) 
   };
   
   let fallback = {};

@@ -175,7 +175,22 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
       expanded: selectedTopics 
     });
     
+    // If caller passes tools inline (belt-and-braces), merge them
+    if (req.body?.tools) {
+      const hasData = (o) => o && Object.keys(o).length > 0;
+      if (!hasData(session.budget) && hasData(req.body.tools.budget)) {
+        session.budget = req.body.tools.budget;
+      }
+      if (!hasData(session.savingsPlanner) && hasData(req.body.tools.savingsPlanner)) {
+        session.savingsPlanner = req.body.tools.savingsPlanner;
+      }
+    }
+
     const pdfDto = await buildPdfDto(session, options);
+    console.log('[PDF] section present flags (after DTO)', {
+      budget: pdfDto.sections?.budget?.present,
+      savingsPlanner: pdfDto.sections?.savingsPlanner?.present,
+    });
     console.log('[PDF] PDF DTO built', { hasData: !!pdfDto, selectedTopics: options.selectedTopics });
     
     console.log('[PDF] section present flags (after DTO)', {
