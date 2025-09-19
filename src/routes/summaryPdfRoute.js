@@ -160,7 +160,8 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     
     const options = {
       selectedTopics: selectedTopics,
-      notes: req.body?.notes || session?.notes || ''
+      notes: req.body?.notes || session?.notes || '',
+      kundenId: req.session?.kundenId || session?.customerId || session?.meta?.clientId
     };
     console.log('[PDF] topic mapping applied', { 
       original: req.body?.selectedTopics || session?.selectedTopics || [],

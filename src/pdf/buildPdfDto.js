@@ -321,7 +321,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   });
 
   // Optionaler Fallback-Loader für fehlende Tool-Daten
-  const kundenId = session?.customerId || session?.meta?.clientId || session?.kundenId;
+  const kundenId = session?.customerId || session?.meta?.clientId || session?.kundenId || options?.kundenId;
   const needs = { 
     budget: !session?.budget, 
     savingsPlanner: !session?.savingsPlanner, 
