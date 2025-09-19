@@ -510,7 +510,9 @@ async function buildPdfDto(sessionRaw, options = {}) {
   // Zinsvergleich section (basic table)
   const Z = merged.interestCompare || {};
   const zinsSec = {
-    present: Array.isArray(Z.chartData) && Z.chartData.length > 1,
+    present: (Array.isArray(Z.chartData) && Z.chartData.length > 0)
+      || (Array.isArray(Z.totals) && Z.totals.length > 0)
+      || (Array.isArray(Z.rates) && Z.rates.length > 0),
     title: 'Zinsvergleich',
     keyFigures: {
       initial: safe(Z.initial),
