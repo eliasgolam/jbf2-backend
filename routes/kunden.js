@@ -191,6 +191,15 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   let payload = req.body || {};
   if (key === 'savingsPlanner') {
     payload = normalizeSavingsPlanner(payload);
+    // also keep legacy aliases for PDF robustness
+    processedPayload = {
+      ...payload,
+      anfangskapital: payload.startCapital,
+      sparrate: payload.monthlySaving,
+      jahre: payload.years,
+      endkapital: payload.endValue,
+      zielbetrag: payload.endValue
+    };
   }
   
   // ✅ Throttling: Check for duplicate saves within 2 seconds
@@ -296,7 +305,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
     }
   } else {
     // For savingsPlanner, use the already normalized payload
-    processedPayload = payload;
+    processedPayload = processedPayload || payload;
   }
   
   console.log('[SESSION] Tool saved:', key, Object.keys(processedPayload||{}));

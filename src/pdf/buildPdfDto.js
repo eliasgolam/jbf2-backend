@@ -427,9 +427,11 @@ async function buildPdfDto(sessionRaw, options = {}) {
   // Normalize possible alternate keys coming from fallback/tool storage
   const S = {
     ...S0,
-    monthlySaving: S0.monthlySaving ?? S0.monthlyRate,
+    startCapital: S0.startCapital ?? S0.anfangskapital,
+    monthlySaving: S0.monthlySaving ?? S0.monthlyRate ?? S0.sparrate,
     rate: S0.rate ?? S0.ratePercent ?? S0.zinssatz,
-    endValue: S0.endValue ?? S0.targetAmount,
+    years: S0.years ?? S0.jahre,
+    endValue: S0.endValue ?? S0.targetAmount ?? S0.endkapital,
     interval: S0.interval || (S0.intervall === 'jährlich' ? 'yearly' : 'monthly')
   };
   const chartData = Array.isArray(S.chartData) ? S.chartData : [];
