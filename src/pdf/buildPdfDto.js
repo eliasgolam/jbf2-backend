@@ -4,6 +4,7 @@
  */
 
 const { buildSavingsChart } = require('./charts/savingsChart');
+const { buildInterestCompareChart } = require('./charts/interestCompareChart');
 const { loadToolsForCustomer } = require('../services/toolLoader');
 
 // Helper functions for robust data handling
@@ -509,6 +510,15 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const childrenSec = buildChildrenSection(merged.children);
   // Zinsvergleich section (basic table)
   const Z = merged.interestCompare || {};
+  let interestChartImage;
+  try {
+    if (Array.isArray(Z.rates) && Z.rates.length > 0 && Array.isArray(Z.chartData) && Z.chartData.length > 0) {
+      interestChartImage = await buildInterestCompareChart(Z.rates, Z.chartData);
+    }
+  } catch (e) {
+    console.warn('[PDF DTO][interestCompare] chart image build failed:', e.message);
+  }
+
   const zinsSec = {
     present: (Array.isArray(Z.chartData) && Z.chartData.length > 0)
       || (Array.isArray(Z.totals) && Z.totals.length > 0)
@@ -523,7 +533,8 @@ async function buildPdfDto(sessionRaw, options = {}) {
     },
     chartData: Array.isArray(Z.chartData) ? Z.chartData : [],
     rates: Array.isArray(Z.rates) ? Z.rates : [],
-    totals: Array.isArray(Z.totals) ? Z.totals : []
+    totals: Array.isArray(Z.totals) ? Z.totals : [],
+    chartImage: interestChartImage
   };
   
   // Apply selectedTopics filter

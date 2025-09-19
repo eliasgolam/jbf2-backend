@@ -166,6 +166,9 @@
       <div class="key-figure"><div class="key-figure-label">Intervall</div><div class="key-figure-value">{{sections.interestCompare.keyFigures.interval}}</div></div>
       <div class="key-figure"><div class="key-figure-label">Einzahlungsart</div><div class="key-figure-value">{{sections.interestCompare.keyFigures.mode}}</div></div>
     </div>
+    {{#if sections.interestCompare.chartImage}}
+      <img src="{{sections.interestCompare.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
+    {{/if}}
     <table class="table">
       <thead><tr><th>Jahr</th>{{#each sections.interestCompare.rates}}<th>Zins {{this}}%</th>{{/each}}</tr></thead>
       <tbody>
