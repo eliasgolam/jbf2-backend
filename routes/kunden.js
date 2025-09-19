@@ -8,6 +8,7 @@ const keyMap = {
   budget: 'budget',
   sparrechner: 'savingsPlanner',
   savingsplanner: 'savingsPlanner',
+  zinsvergleich: 'interestCompare',
   pension: 'pension',
   gesundheit: 'health',
   health: 'health',
@@ -351,6 +352,8 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
       sessionPatch.property = processedPayload;
     } else if (key === 'children') {
       sessionPatch.children = processedPayload;
+    } else if (key === 'interestCompare') {
+      sessionPatch.interestCompare = processedPayload;
     } else {
       // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
       console.log(`[SESSION] Tool ${toolName} (${key}) gespeichert, aber keine PDF-Section definiert`);

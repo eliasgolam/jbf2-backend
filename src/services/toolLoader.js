@@ -144,6 +144,21 @@ async function loadToolsForCustomer(kundenId) {
       };
     }
 
+    // Interest Compare (Zinsvergleich)
+    if (toolDaten.interestCompare || toolDaten.zinsvergleich) {
+      const iz = toolDaten.interestCompare || toolDaten.zinsvergleich;
+      fallback.interestCompare = {
+        initial: Number(iz.initial) || 0,
+        monthly: Number(iz.monthly) || 0,
+        interval: iz.interval || 'monatlich',
+        mode: iz.mode || 'vorschüssig',
+        years: Number(iz.years) || 0,
+        rates: Array.isArray(iz.rates) ? iz.rates.map(Number) : [],
+        totals: Array.isArray(iz.totals) ? iz.totals : [],
+        chartData: Array.isArray(iz.chartData) ? iz.chartData : []
+      };
+    }
+
     console.log('[TOOL-LOADER] Fallback-Daten erstellt:', Object.keys(fallback));
     return fallback;
 

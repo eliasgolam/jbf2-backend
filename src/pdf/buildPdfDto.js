@@ -526,7 +526,9 @@ async function buildPdfDto(sessionRaw, options = {}) {
   
   // Apply selectedTopics filter
   const selected = new Set(options?.selectedTopics || session?.selectedTopics || []);
-  const allow = (code) => selected.size === 0 || selected.has(code);
+  // Allow zinsvergleich under multiple codes
+  const mapCode = (code) => code === 'savings' ? 'savingsPlanner' : code;
+  const allow = (code) => selected.size === 0 || selected.has(mapCode(code)) || selected.has('zinsvergleich') || selected.has('interestCompare');
   
   console.log('[PDF] selectedTopics filter', {
     selectedTopics: Array.from(selected),
@@ -536,6 +538,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   // Apply filter to sections
   budgetSec.present = budgetSec.present && allow('budget');
   savingsSec.present = savingsSec.present && allow('savings');
+  zinsSec.present = zinsSec.present && allow('interestCompare');
   pensionSec.present = pensionSec.present && allow('pension');
   healthSec.present = healthSec.present && allow('health');
   propertySec.present = propertySec.present && allow('property');
