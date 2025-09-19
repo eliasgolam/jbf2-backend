@@ -156,6 +156,32 @@
   {{> savings sections.savingsPlanner}}
 {{/if}}
 
+{{#if sections.interestCompare.present}}
+  <div class="section">
+    <h2 class="section-title">Zinsvergleich</h2>
+    <div class="key-figures">
+      <div class="key-figure"><div class="key-figure-label">Anfangskapital</div><div class="key-figure-value">{{formatCurrency sections.interestCompare.keyFigures.initial}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Sparrate</div><div class="key-figure-value">{{formatCurrency sections.interestCompare.keyFigures.monthly}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Laufzeit</div><div class="key-figure-value">{{sections.interestCompare.keyFigures.years}} Jahre</div></div>
+      <div class="key-figure"><div class="key-figure-label">Intervall</div><div class="key-figure-value">{{sections.interestCompare.keyFigures.interval}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Einzahlungsart</div><div class="key-figure-value">{{sections.interestCompare.keyFigures.mode}}</div></div>
+    </div>
+    <table class="table">
+      <thead><tr><th>Jahr</th>{{#each sections.interestCompare.rates}}<th>Zins {{this}}%</th>{{/each}}</tr></thead>
+      <tbody>
+        {{#each sections.interestCompare.chartData}}
+          <tr>
+            <td>{{this.jahr}}</td>
+            {{#each ../sections.interestCompare.rates}}
+              <td class="currency">{{formatCurrency (lookup ../this (concat 'zins' this))}}</td>
+            {{/each}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+
 {{#if sections.pension.present}}
 {{> pension sections.pension}}
 {{/if}}

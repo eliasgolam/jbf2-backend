@@ -298,6 +298,19 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
         };
         break;
       }
+      case 'zinsvergleich': {
+        processedPayload = {
+          initial: safeNum(b.initial),
+          monthly: safeNum(b.monthly),
+          interval: b.interval || 'monatlich',
+          mode: b.mode || 'vorschüssig',
+          years: safeNum(b.years),
+          rates: Array.isArray(b.rates) ? b.rates.map(safeNum) : [],
+          totals: Array.isArray(b.totals) ? b.totals : [],
+          chartData: Array.isArray(b.chartData) ? b.chartData : []
+        };
+        break;
+      }
       default: {
         processedPayload = payload;
         break;

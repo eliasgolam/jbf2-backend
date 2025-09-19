@@ -308,6 +308,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   session.health = plain(session.health) || {};
   session.property = plain(session.property) || {};
   session.children = plain(session.children) || {};
+  session.interestCompare = plain(session.interestCompare) || {};
 
   console.log('[PDF] raw budget object', JSON.stringify(session.budget));
 
@@ -346,6 +347,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const merged = {
     budget: prefer(session?.budget, fallback.budget),
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
+    interestCompare: prefer(session?.interestCompare, fallback.interestCompare),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
     property: prefer(session?.property, fallback.property),
@@ -505,6 +507,22 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const healthSec = buildHealthSection(merged.health);
   const propertySec = buildPropertySection(merged.property);
   const childrenSec = buildChildrenSection(merged.children);
+  // Zinsvergleich section (basic table)
+  const Z = merged.interestCompare || {};
+  const zinsSec = {
+    present: Array.isArray(Z.chartData) && Z.chartData.length > 1,
+    title: 'Zinsvergleich',
+    keyFigures: {
+      initial: safe(Z.initial),
+      monthly: safe(Z.monthly),
+      years: safe(Z.years),
+      interval: Z.interval || 'monatlich',
+      mode: Z.mode || 'vorschüssig'
+    },
+    chartData: Array.isArray(Z.chartData) ? Z.chartData : [],
+    rates: Array.isArray(Z.rates) ? Z.rates : [],
+    totals: Array.isArray(Z.totals) ? Z.totals : []
+  };
   
   // Apply selectedTopics filter
   const selected = new Set(options?.selectedTopics || session?.selectedTopics || []);
@@ -549,6 +567,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     sections: {
       budget: budgetSec,
       savingsPlanner: savingsSec,
+      interestCompare: zinsSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,
