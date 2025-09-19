@@ -328,6 +328,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const needs = { 
     budget: !hasData(session?.budget), 
     savingsPlanner: !hasData(session?.savingsPlanner), 
+    interestCompare: !hasData(session?.interestCompare),
     pension: !hasData(session?.pension), 
     health: !hasData(session?.health), 
     property: !hasData(session?.property), 

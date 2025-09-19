@@ -17,7 +17,7 @@ async function loadToolsForCustomer(kundenId) {
       return {};
     }
 
-    const kunde = await Kunde.findById(kundenId);
+    const kunde = await Kunde.findById(kundenId).lean();
     if (!kunde) {
       console.log('[TOOL-LOADER] Kunde nicht gefunden:', kundenId);
       return {};
