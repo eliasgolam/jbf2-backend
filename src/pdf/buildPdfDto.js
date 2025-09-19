@@ -406,7 +406,15 @@ async function buildPdfDto(sessionRaw, options = {}) {
   
   // ---------- SavingsPlanner ----------
   const Sraw = merged.savingsPlanner || {};
-  const S = (typeof Sraw.toObject === 'function') ? Sraw.toObject() : Sraw;
+  const S0 = (typeof Sraw.toObject === 'function') ? Sraw.toObject() : Sraw;
+  // Normalize possible alternate keys coming from fallback/tool storage
+  const S = {
+    ...S0,
+    monthlySaving: S0.monthlySaving ?? S0.monthlyRate,
+    rate: S0.rate ?? S0.ratePercent ?? S0.zinssatz,
+    endValue: S0.endValue ?? S0.targetAmount,
+    interval: S0.interval || (S0.intervall === 'jährlich' ? 'yearly' : 'monthly')
+  };
   const chartData = Array.isArray(S.chartData) ? S.chartData : [];
   const startCapital = S.startCapital;
   const monthlySaving = S.monthlySaving;
