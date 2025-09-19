@@ -365,8 +365,8 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const B = merged.budget || {};
   let income, expenses, savings, available, notes = B.notes;
 
-  // a) Klassische Felder bevorzugen, falls vorhanden
-  if (B.income !== undefined || B.expenses !== undefined || B.available !== undefined) {
+  // a) Klassische Felder bevorzugen, falls vorhanden (auch 0 zulassen)
+  if ('income' in B || 'expenses' in B || 'available' in B) {
     income = val(B.income);
     expenses = val(B.expenses);
     savings = val(B.savings) ?? val(B.savingsRate) ?? val(B.sparquote);
@@ -411,7 +411,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       : undefined;
 
   const budgetSec = {
-    present: [income, expenses, savings, available].some(x => x !== undefined) || !!grid,
+    present: (income !== undefined || expenses !== undefined || available !== undefined || savings !== undefined) || !!grid,
     title: 'Budget',
     keyFigures: { income, expenses, savings, available },
     grid,

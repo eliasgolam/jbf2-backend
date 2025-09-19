@@ -223,7 +223,10 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
           expenses: safeNum(b.summeAusgaben ?? b.totalExpenses ?? b.expenses),
           available: safeNum(b.available),
           savings: safeNum(b.savings ?? b.sparquote ?? b.savingsRate),
-          notes: b.notes
+          notes: b.notes,
+          // include grid when present so PDF can render details
+          values: b.values,
+          customRows: b.customRows
         };
         break;
       }
