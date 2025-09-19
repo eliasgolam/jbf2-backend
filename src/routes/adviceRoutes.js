@@ -49,9 +49,25 @@ router.put('/:id', rateLimit, validateInput, optionalAuth, async (req, res) => {
       sessionData.meta.consultantName = 'Unknown Consultant';
     }
 
-    // Upsert session
+    // Upsert session with merge to avoid wiping existing tool data
     const adviceRepository = getRepository();
-    const session = await adviceRepository.upsert(id, sessionData);
+    const existing = await adviceRepository.get(id) || {};
+    const merged = {
+      ...existing,
+      ...sessionData,
+      meta: {
+        ...(existing.meta || {}),
+        ...(sessionData.meta || {}),
+        clientId: (sessionData.meta?.clientId) || (existing.meta?.clientId) || id,
+      },
+      budget: (sessionData.budget !== undefined ? sessionData.budget : existing.budget) || existing.budget || null,
+      savingsPlanner: (sessionData.savingsPlanner !== undefined ? sessionData.savingsPlanner : existing.savingsPlanner) || existing.savingsPlanner || null,
+      pension: (sessionData.pension !== undefined ? sessionData.pension : existing.pension) || existing.pension || null,
+      health: (sessionData.health !== undefined ? sessionData.health : existing.health) || existing.health || null,
+      property: (sessionData.property !== undefined ? sessionData.property : existing.property) || existing.property || null,
+      children: (sessionData.children !== undefined ? sessionData.children : existing.children) || existing.children || null,
+    };
+    await adviceRepository.upsert(id, merged);
 
     res.status(204).send();
   } catch (error) {

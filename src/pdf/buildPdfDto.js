@@ -337,13 +337,18 @@ async function buildPdfDto(sessionRaw, options = {}) {
     console.log('[PDF] fallback tools', Object.fromEntries(Object.entries(fallback).map(([k,v])=>[k, !!v])));
   }
   
+  // Merge session with fallback tool-by-tool (prefer session if has data; else fallback)
+  function prefer(a, b) {
+    const has = (o) => o && Object.keys(o).length > 0;
+    return has(a) ? a : (has(b) ? b : null);
+  }
   const merged = {
-    budget: session?.budget ?? fallback.budget ?? null,
-    savingsPlanner: session?.savingsPlanner ?? fallback.savings ?? null,
-    pension: session?.pension ?? fallback.pension ?? null,
-    health: session?.health ?? fallback.health ?? null,
-    property: session?.property ?? fallback.property ?? null,
-    children: session?.children ?? fallback.children ?? null,
+    budget: prefer(session?.budget, fallback.budget),
+    savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
+    pension: prefer(session?.pension, fallback.pension),
+    health: prefer(session?.health, fallback.health),
+    property: prefer(session?.property, fallback.property),
+    children: prefer(session?.children, fallback.children),
   };
   
   console.log('[PDF] dto input (merged data)', { 
