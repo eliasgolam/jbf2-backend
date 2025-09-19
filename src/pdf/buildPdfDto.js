@@ -404,9 +404,11 @@ async function buildPdfDto(sessionRaw, options = {}) {
     available = available ?? (income !== undefined && expenses !== undefined ? income - expenses : val(Fb.available));
   }
 
-  const grid = Array.isArray(B.customRows) || B.values
+  const grid = (B && (B.values || Array.isArray(B.customRows)))
     ? { values: B.values || {}, customRows: B.customRows || [] }
-    : undefined;
+    : (fallback?.budget && (fallback.budget.values || Array.isArray(fallback.budget.customRows)))
+      ? { values: fallback.budget.values || {}, customRows: fallback.budget.customRows || [] }
+      : undefined;
 
   const budgetSec = {
     present: [income, expenses, savings, available].some(x => x !== undefined) || !!grid,

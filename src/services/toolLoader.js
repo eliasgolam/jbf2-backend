@@ -33,42 +33,48 @@ async function loadToolsForCustomer(kundenId) {
     if (toolDaten.budget) {
       const budget = toolDaten.budget;
       const { values, customRows } = budget;
-      
-      let income = 0;
-      let expenses = 0;
-      
-      // Berechne Einkommen und Ausgaben aus values
-      if (values) {
-        const categories = [
-          { name: 'einkommen', type: 'income' },
-          { name: 'ausgaben', type: 'expense' }
-        ];
-        
-        Object.keys(values).forEach(catName => {
-          const cat = categories.find(c => c.name === catName);
-          if (cat) {
-            const v = values[catName] || {};
-            const sum = (v.kunde || 0) + (v.familie || 0);
-            if (cat.type === 'income') income += sum;
-            else expenses += sum;
-          }
-        });
+
+      // 1) If numeric summary exists, prefer it
+      let income = Number(budget.income);
+      let expenses = Number(budget.expenses);
+      let availableNumeric = budget.available;
+      let savingsNumeric = budget.savings;
+
+      const hasNumeric = isFinite(income) || isFinite(expenses) || isFinite(availableNumeric) || isFinite(savingsNumeric);
+
+      // 2) Otherwise compute from grid values/customRows
+      if (!hasNumeric) {
+        income = 0;
+        expenses = 0;
+        if (values) {
+          const categories = [
+            { name: 'einkommen', type: 'income' },
+            { name: 'ausgaben', type: 'expense' }
+          ];
+          Object.keys(values).forEach(catName => {
+            const cat = categories.find(c => c.name === catName);
+            if (cat) {
+              const v = values[catName] || {};
+              const sum = (Number(v.kunde)||0) + (Number(v.familie)||0);
+              if (cat.type === 'income') income += sum; else expenses += sum;
+            }
+          });
+        }
+        if (customRows) {
+          customRows.forEach(row => {
+            const sum = (Number(row.kunde)||0) + (Number(row.familie)||0);
+            if (row.type === 'income') income += sum; else expenses += sum;
+          });
+        }
+        availableNumeric = income - expenses;
+        savingsNumeric = availableNumeric;
       }
-      
-      // Füge customRows hinzu
-      if (customRows) {
-        customRows.forEach(row => {
-          const sum = (row.kunde || 0) + (row.familie || 0);
-          if (row.type === 'income') income += sum;
-          else expenses += sum;
-        });
-      }
-      
+
       fallback.budget = {
-        income,
-        expenses,
-        available: income - expenses,
-        savings: 0,
+        income: isFinite(income) ? income : 0,
+        expenses: isFinite(expenses) ? expenses : 0,
+        available: isFinite(availableNumeric) ? availableNumeric : (isFinite(income) && isFinite(expenses) ? income - expenses : 0),
+        savings: isFinite(savingsNumeric) ? savingsNumeric : 0,
         values,
         customRows,
         notes: budget.notes || ''
