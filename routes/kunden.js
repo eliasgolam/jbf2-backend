@@ -10,6 +10,7 @@ const keyMap = {
   savingsplanner: 'savingsPlanner',
   zinsvergleich: 'interestCompare',
   'starten-oder-warten': 'startOrWait',
+  'altersrentenrechner': 'retirementPension',
   pension: 'pension',
   gesundheit: 'health',
   health: 'health',
@@ -185,7 +186,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   const toolName = (req.params.toolname || '').toLowerCase();
   const key = keyMap[toolName] || toolName;
   
-  if (!['budget','savingsPlanner','pension','health','property','children','startOrWait'].includes(key)) {
+  if (!['budget','savingsPlanner','pension','health','property','children','startOrWait','retirementPension'].includes(key)) {
     return res.status(400).json({ error: `Unsupported toolname: ${toolName}` });
   }
   
@@ -238,6 +239,24 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
           interval: b.interval || 'monatlich',
           mode: b.mode || 'vorschüssig',
           totals: b.totals,
+          chartData: Array.isArray(b.chartData) ? b.chartData : []
+        };
+        break;
+      }
+      case 'retirementPension': {
+        processedPayload = {
+          person: {
+            name: b.person?.name,
+            vorname: b.person?.vorname,
+            geburtsdatum: b.person?.geburtsdatum,
+            zivilstand: b.person?.zivilstand,
+            kinder: safeNum(b.person?.kinder)
+          },
+          bruttoLohn: safeNum(b.bruttoLohn),
+          lohnzuwachs: safeNum(b.lohnzuwachs),
+          guthabenBeiRentenbeginn: safeNum(b.guthabenBeiRentenbeginn),
+          benoetigtesEinkommen: safeNum(b.benoetigtesEinkommen),
+          results: b.results,
           chartData: Array.isArray(b.chartData) ? b.chartData : []
         };
         break;
@@ -371,6 +390,8 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
       sessionPatch.interestCompare = processedPayload;
     } else if (key === 'startOrWait') {
       sessionPatch.startOrWait = processedPayload;
+    } else if (key === 'retirementPension') {
+      sessionPatch.retirementPension = processedPayload;
     } else {
       // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
       console.log(`[SESSION] Tool ${toolName} (${key}) gespeichert, aber keine PDF-Section definiert`);

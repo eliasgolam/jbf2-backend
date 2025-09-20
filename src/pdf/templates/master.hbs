@@ -220,6 +220,43 @@
   <div class="page-break"></div>
 {{/if}}
 
+{{#if sections.retirementPension}}
+  <div class="section">
+    <h2 class="section-title">Altersrenten-Rechner</h2>
+    <div class="key-figures">
+      <div class="key-figure"><div class="key-figure-label">Name</div><div class="key-figure-value">{{sections.retirementPension.keyFigures.vorname}} {{sections.retirementPension.keyFigures.name}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Geburtsdatum</div><div class="key-figure-value">{{formatDate sections.retirementPension.keyFigures.geburtsdatum}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Zivilstand</div><div class="key-figure-value">{{sections.retirementPension.keyFigures.zivilstand}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Kinder</div><div class="key-figure-value">{{sections.retirementPension.keyFigures.kinder}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Bruttolohn</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.bruttoLohn}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Guthaben bei Rentenbeginn</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.guthabenBeiRentenbeginn}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Benötigtes Einkommen (monatl.)</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.benoetigtesEinkommen}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">AHV-Rente (Jahr)</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.ahvRente}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Gesamtrente</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.gesamtRente}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Monatliche Rente</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.monatlicheRente}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Monatliche Lücke</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.monatlicheLuecke}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Gesamtlücke</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.gesamtluecke}}</div></div>
+    </div>
+    {{#if sections.retirementPension.chartData}}
+      <table class="table">
+        <thead>
+          <tr><th></th><th>Monatliche Rente</th><th>Monatliche Lücke</th></tr>
+        </thead>
+        <tbody>
+          {{#each sections.retirementPension.chartData}}
+            <tr>
+              <td>{{this.label}}</td>
+              <td class="currency">{{formatCurrency this.rente}}</td>
+              <td class="currency">{{formatCurrency this.luecke}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+  </div>
+  <div class="page-break"></div>
+{{/if}}
+
 {{#if sections.pension.present}}
 {{> pension sections.pension}}
 {{/if}}

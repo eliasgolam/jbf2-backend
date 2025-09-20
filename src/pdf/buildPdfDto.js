@@ -311,6 +311,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   session.children = plain(session.children) || {};
   session.interestCompare = plain(session.interestCompare) || {};
   session.startOrWait = plain(session.startOrWait) || {};
+  session.retirementPension = plain(session.retirementPension) || {};
 
   console.log('[PDF] raw budget object', JSON.stringify(session.budget));
 
@@ -331,6 +332,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     savingsPlanner: !hasData(session?.savingsPlanner), 
     interestCompare: !hasData(session?.interestCompare),
     startOrWait: !hasData(session?.startOrWait),
+    retirementPension: !hasData(session?.retirementPension),
     pension: !hasData(session?.pension), 
     health: !hasData(session?.health), 
     property: !hasData(session?.property), 
@@ -363,6 +365,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
     interestCompare: prefer3(inlineTools.interestCompare, session?.interestCompare, fallback.interestCompare),
     startOrWait: prefer3(inlineTools.startOrWait, session?.startOrWait, fallback.startOrWait),
+    retirementPension: prefer3(inlineTools.retirementPension, session?.retirementPension, fallback.retirementPension),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
     property: prefer(session?.property, fallback.property),
@@ -523,6 +526,29 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const propertySec = buildPropertySection(merged.property);
   const childrenSec = buildChildrenSection(merged.children);
   // Start or Wait section
+  // Retirement Pension (Altersrentenrechner)
+  const R = merged.retirementPension || {};
+  const retirementSec = {
+    present: !!(R.person || R.bruttoLohn || R.guthabenBeiRentenbeginn || R.benoetigtesEinkommen || (Array.isArray(R.chartData) && R.chartData.length) || R.results),
+    title: 'Altersrenten-Rechner',
+    keyFigures: {
+      name: R.person?.name || '',
+      vorname: R.person?.vorname || '',
+      geburtsdatum: R.person?.geburtsdatum || '',
+      zivilstand: R.person?.zivilstand || '',
+      kinder: safe(R.person?.kinder || 0),
+      bruttoLohn: safe(R.bruttoLohn),
+      lohnzuwachs: safe(R.lohnzuwachs),
+      guthabenBeiRentenbeginn: safe(R.guthabenBeiRentenbeginn),
+      benoetigtesEinkommen: safe(R.benoetigtesEinkommen),
+      ahvRente: safe(R.results?.ahvRente),
+      gesamtRente: safe(R.results?.gesamtRente),
+      monatlicheRente: safe(R.results?.monatlicheRente),
+      monatlicheLuecke: safe(R.results?.monatlicheLuecke),
+      gesamtluecke: safe(R.results?.gesamtluecke)
+    },
+    chartData: Array.isArray(R.chartData) ? R.chartData : []
+  };
   const W = merged.startOrWait || {};
   const startOrWaitSec = {
     present: !!(W.initial || W.monthly || W.rate || W.years || W.waitYears || (Array.isArray(W.chartData) && W.chartData.length)),
@@ -587,6 +613,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   zinsSec.present = zinsSec.present && allow('interestCompare');
   startOrWaitSec.present = startOrWaitSec.present && allow('startOrWait');
   pensionSec.present = pensionSec.present && allow('pension');
+  retirementSec.present = retirementSec.present && allow('retirementPension');
   healthSec.present = healthSec.present && allow('health');
   propertySec.present = propertySec.present && allow('property');
   childrenSec.present = childrenSec.present && allow('children');
@@ -597,6 +624,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     'savingsPlanner.present': savingsSec?.present,
     'interestCompare.present': zinsSec?.present,
     'startOrWait.present': startOrWaitSec?.present,
+    'retirementPension.present': retirementSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
@@ -621,6 +649,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       savingsPlanner: savingsSec,
       interestCompare: zinsSec,
       startOrWait: startOrWaitSec,
+      retirementPension: retirementSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,
