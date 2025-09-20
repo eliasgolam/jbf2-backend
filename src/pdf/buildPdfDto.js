@@ -341,15 +341,25 @@ async function buildPdfDto(sessionRaw, options = {}) {
     console.log('[PDF] fallback tools', Object.fromEntries(Object.entries(fallback).map(([k,v])=>[k, !!v])));
   }
   
-  // Merge session with fallback tool-by-tool (prefer session if has data; else fallback)
+  // Merge helpers
+  function has(o) { return o && Object.keys(o).length > 0; }
+  // prefer(a,b): pick first that has data
   function prefer(a, b) {
     const has = (o) => o && Object.keys(o).length > 0;
     return has(a) ? a : (has(b) ? b : null);
   }
+  // prefer3: a > b > c
+  function prefer3(a, b, c) {
+    if (has(a)) return a;
+    if (has(b)) return b;
+    if (has(c)) return c;
+    return null;
+  }
+  const inlineTools = options?.tools || {};
   const merged = {
     budget: prefer(session?.budget, fallback.budget),
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
-    interestCompare: prefer(session?.interestCompare, fallback.interestCompare),
+    interestCompare: prefer3(inlineTools.interestCompare, session?.interestCompare, fallback.interestCompare),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
     property: prefer(session?.property, fallback.property),
@@ -562,6 +572,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     'budget.present': budgetSec?.present, 
     'pension.present': pensionSec?.present, 
     'savingsPlanner.present': savingsSec?.present,
+    'interestCompare.present': zinsSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
