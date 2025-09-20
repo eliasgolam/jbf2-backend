@@ -9,6 +9,7 @@ const keyMap = {
   sparrechner: 'savingsPlanner',
   savingsplanner: 'savingsPlanner',
   zinsvergleich: 'interestCompare',
+  'starten-oder-warten': 'startOrWait',
   pension: 'pension',
   gesundheit: 'health',
   health: 'health',
@@ -184,7 +185,7 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   const toolName = (req.params.toolname || '').toLowerCase();
   const key = keyMap[toolName] || toolName;
   
-  if (!['budget','savingsPlanner','pension','health','property','children'].includes(key)) {
+  if (!['budget','savingsPlanner','pension','health','property','children','startOrWait'].includes(key)) {
     return res.status(400).json({ error: `Unsupported toolname: ${toolName}` });
   }
   
@@ -227,6 +228,20 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
   // ✅ Process payload for legacy compatibility (only for non-savingsPlanner tools)
   if (key !== 'savingsPlanner') {
     switch (key) {
+      case 'startOrWait': {
+        processedPayload = {
+          initial: safeNum(b.initial),
+          monthly: safeNum(b.monthly),
+          rate: safeNum(b.rate),
+          years: safeNum(b.years),
+          waitYears: safeNum(b.waitYears),
+          interval: b.interval || 'monatlich',
+          mode: b.mode || 'vorschüssig',
+          totals: b.totals,
+          chartData: Array.isArray(b.chartData) ? b.chartData : []
+        };
+        break;
+      }
       case 'budget': {
         processedPayload = {
           income: safeNum(b.summeEinnahmen ?? b.totalIncome ?? b.income),
@@ -354,6 +369,8 @@ router.post('/session/toolDaten/:toolname', checkKundenSession, async (req, res)
       sessionPatch.children = processedPayload;
     } else if (key === 'interestCompare') {
       sessionPatch.interestCompare = processedPayload;
+    } else if (key === 'startOrWait') {
+      sessionPatch.startOrWait = processedPayload;
     } else {
       // Diese Tools haben keine spezifische PDF-Section, aber wir loggen sie
       console.log(`[SESSION] Tool ${toolName} (${key}) gespeichert, aber keine PDF-Section definiert`);

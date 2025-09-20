@@ -188,6 +188,38 @@
   <div class="page-break"></div>
 {{/if}}
 
+{{#if sections.startOrWait}}
+  <div class="section">
+    <h2 class="section-title">Starten oder warten</h2>
+    <div class="key-figures">
+      <div class="key-figure"><div class="key-figure-label">Anfangskapital</div><div class="key-figure-value">{{formatCurrency sections.startOrWait.keyFigures.initial}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Sparrate</div><div class="key-figure-value">{{formatCurrency sections.startOrWait.keyFigures.monthly}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Zinssatz</div><div class="key-figure-value">{{formatPercent sections.startOrWait.keyFigures.rate}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Laufzeit</div><div class="key-figure-value">{{sections.startOrWait.keyFigures.years}} Jahre</div></div>
+      <div class="key-figure"><div class="key-figure-label">Wartezeit</div><div class="key-figure-value">{{sections.startOrWait.keyFigures.waitYears}} Jahre</div></div>
+      <div class="key-figure"><div class="key-figure-label">Intervall</div><div class="key-figure-value">{{sections.startOrWait.keyFigures.interval}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Einzahlungsart</div><div class="key-figure-value">{{sections.startOrWait.keyFigures.mode}}</div></div>
+    </div>
+    {{#if sections.startOrWait.chartData}}
+      <table class="table">
+        <thead>
+          <tr><th>Jahr</th><th>Kapital sofort</th><th>Kapital warten</th></tr>
+        </thead>
+        <tbody>
+          {{#each sections.startOrWait.chartData}}
+            <tr>
+              <td>{{this.jahr}}</td>
+              <td class="currency">{{formatCurrency this.sofort}}</td>
+              <td class="currency">{{formatCurrency this.warten}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+  </div>
+  <div class="page-break"></div>
+{{/if}}
+
 {{#if sections.pension.present}}
 {{> pension sections.pension}}
 {{/if}}

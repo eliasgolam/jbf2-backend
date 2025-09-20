@@ -310,6 +310,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   session.property = plain(session.property) || {};
   session.children = plain(session.children) || {};
   session.interestCompare = plain(session.interestCompare) || {};
+  session.startOrWait = plain(session.startOrWait) || {};
 
   console.log('[PDF] raw budget object', JSON.stringify(session.budget));
 
@@ -329,6 +330,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     budget: !hasData(session?.budget), 
     savingsPlanner: !hasData(session?.savingsPlanner), 
     interestCompare: !hasData(session?.interestCompare),
+    startOrWait: !hasData(session?.startOrWait),
     pension: !hasData(session?.pension), 
     health: !hasData(session?.health), 
     property: !hasData(session?.property), 
@@ -360,6 +362,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     budget: prefer(session?.budget, fallback.budget),
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
     interestCompare: prefer3(inlineTools.interestCompare, session?.interestCompare, fallback.interestCompare),
+    startOrWait: prefer3(inlineTools.startOrWait, session?.startOrWait, fallback.startOrWait),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
     property: prefer(session?.property, fallback.property),
@@ -519,6 +522,25 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const healthSec = buildHealthSection(merged.health);
   const propertySec = buildPropertySection(merged.property);
   const childrenSec = buildChildrenSection(merged.children);
+  // Start or Wait section
+  const W = merged.startOrWait || {};
+  const startOrWaitSec = {
+    present: !!(W.initial || W.monthly || W.rate || W.years || W.waitYears || (Array.isArray(W.chartData) && W.chartData.length)),
+    title: 'Starten oder warten',
+    keyFigures: {
+      initial: safe(W.initial),
+      monthly: safe(W.monthly),
+      rate: safe(W.rate),
+      years: safe(W.years),
+      waitYears: safe(W.waitYears),
+      interval: W.interval || 'monatlich',
+      mode: W.mode || 'vorschüssig',
+      sofortTotal: safe(W?.totals?.sofort),
+      wartenTotal: safe(W?.totals?.warten),
+      diff: safe(W?.totals?.diff)
+    },
+    chartData: Array.isArray(W.chartData) ? W.chartData : []
+  };
   // Zinsvergleich section (basic table)
   const Z = merged.interestCompare || {};
   let interestChartImage;
@@ -563,6 +585,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   budgetSec.present = budgetSec.present && allow('budget');
   savingsSec.present = savingsSec.present && allow('savings');
   zinsSec.present = zinsSec.present && allow('interestCompare');
+  startOrWaitSec.present = startOrWaitSec.present && allow('startOrWait');
   pensionSec.present = pensionSec.present && allow('pension');
   healthSec.present = healthSec.present && allow('health');
   propertySec.present = propertySec.present && allow('property');
@@ -573,6 +596,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     'pension.present': pensionSec?.present, 
     'savingsPlanner.present': savingsSec?.present,
     'interestCompare.present': zinsSec?.present,
+    'startOrWait.present': startOrWaitSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
@@ -596,6 +620,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       budget: budgetSec,
       savingsPlanner: savingsSec,
       interestCompare: zinsSec,
+      startOrWait: startOrWaitSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,
