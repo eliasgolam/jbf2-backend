@@ -526,9 +526,9 @@ async function buildPdfDto(sessionRaw, options = {}) {
       || (Array.isArray(Z.rates) && Z.rates.length > 0),
     title: 'Zinsvergleich',
     keyFigures: {
-      initial: safe(Z.initial),
-      monthly: safe(Z.monthly),
-      years: safe(Z.years),
+      initial: toNumberSafe(Z.initial),
+      monthly: toNumberSafe(Z.monthly),
+      years: toNumberSafe(Z.years),
       interval: Z.interval || 'monatlich',
       mode: Z.mode || 'vorschüssig'
     },
