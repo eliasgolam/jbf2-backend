@@ -237,6 +237,9 @@
       <div class="key-figure"><div class="key-figure-label">Monatliche Lücke</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.monatlicheLuecke}}</div></div>
       <div class="key-figure"><div class="key-figure-label">Gesamtlücke</div><div class="key-figure-value">{{formatCurrency sections.retirementPension.keyFigures.gesamtluecke}}</div></div>
     </div>
+    {{#if sections.retirementPension.chartImage}}
+      <img src="{{sections.retirementPension.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
+    {{/if}}
     {{#if sections.retirementPension.chartData}}
       <table class="table">
         <thead>

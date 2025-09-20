@@ -5,6 +5,7 @@
 
 const { buildSavingsChart } = require('./charts/savingsChart');
 const { buildInterestCompareChart } = require('./charts/interestCompareChart');
+const { buildRetirementChart } = require('./charts/retirementChart');
 const { loadToolsForCustomer } = require('../services/toolLoader');
 
 // Helper functions for robust data handling
@@ -528,6 +529,15 @@ async function buildPdfDto(sessionRaw, options = {}) {
   // Start or Wait section
   // Retirement Pension (Altersrentenrechner)
   const R = merged.retirementPension || {};
+  let retirementChartImage;
+  try {
+    if (Array.isArray(R.chartData) && R.chartData.length > 0) {
+      retirementChartImage = await buildRetirementChart(R.chartData);
+    }
+  } catch (e) {
+    console.warn('[PDF DTO][retirementPension] chart image build failed:', e.message);
+  }
+
   const retirementSec = {
     present: !!(R.person || R.bruttoLohn || R.guthabenBeiRentenbeginn || R.benoetigtesEinkommen || (Array.isArray(R.chartData) && R.chartData.length) || R.results),
     title: 'Altersrenten-Rechner',
@@ -547,7 +557,8 @@ async function buildPdfDto(sessionRaw, options = {}) {
       monatlicheLuecke: safe(R.results?.monatlicheLuecke),
       gesamtluecke: safe(R.results?.gesamtluecke)
     },
-    chartData: Array.isArray(R.chartData) ? R.chartData : []
+    chartData: Array.isArray(R.chartData) ? R.chartData : [],
+    chartImage: retirementChartImage
   };
   const W = merged.startOrWait || {};
   const startOrWaitSec = {

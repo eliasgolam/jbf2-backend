@@ -20,8 +20,8 @@ const topicMap = {
   vermoegen: ['budget','savingsPlanner','interestCompare'],
   'vermögen': ['budget','savingsPlanner','interestCompare'],
   'vermögen aufbauen': ['budget','savingsPlanner','interestCompare'],
-  vorsorge: ['budget','savingsPlanner','interestCompare','pension'],
-  'pension vorsorgen': ['budget','savingsPlanner','interestCompare','pension'],
+  vorsorge: ['budget','savingsPlanner','interestCompare','pension','retirementPension'],
+  'pension vorsorgen': ['budget','savingsPlanner','interestCompare','pension','retirementPension'],
   gesundheit: ['budget','health'],
   kranken: ['budget','health'],
   immobilien: ['budget','property'],
@@ -176,14 +176,15 @@ router.post('/:id/summary-pdf', rateLimit, optionalAuth, async (req, res, next) 
     });
     
     // If caller passes tools inline (belt-and-braces), merge values in (always prefer inline)
-    if (req.body?.tools) {
+  if (req.body?.tools) {
       const merge = (dst, src) => (src && typeof src === 'object') ? { ...(dst||{}), ...src } : dst;
       session.budget = merge(session.budget, req.body.tools.budget);
       session.savingsPlanner = merge(session.savingsPlanner, req.body.tools.savingsPlanner);
       session.interestCompare = merge(session.interestCompare, req.body.tools.interestCompare);
+    session.retirementPension = merge(session.retirementPension, req.body.tools.retirementPension);
     }
 
-    const pdfDto = await buildPdfDto(session, options);
+    const pdfDto = await buildPdfDto(session, { ...options, tools: req.body?.tools || {} });
     console.log('[PDF] section present flags (after DTO)', {
       budget: pdfDto.sections?.budget?.present,
       savingsPlanner: pdfDto.sections?.savingsPlanner?.present,
