@@ -377,7 +377,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     budget: prefer(session?.budget, fallback.budget),
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
     interestCompare: prefer3(inlineTools.interestCompare, session?.interestCompare, fallback.interestCompare),
-    startOrWait: prefer4(inlineTools.startOrWait, session?.startOrWait, session?.['starten-oder-warten'], fallback.startOrWait),
+    startOrWait: prefer4(inlineTools.startOrWait, session?.startOrWait, session?.['starten-oder-warten'], fallback.startOrWait || fallback?.['starten-oder-warten']),
     retirementPension: prefer3(inlineTools.retirementPension, session?.retirementPension, fallback.retirementPension),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
@@ -393,16 +393,6 @@ async function buildPdfDto(sessionRaw, options = {}) {
     hasProperty: !!merged.property, 
     hasChildren: !!merged.children,
     hasStartOrWait: !!merged.startOrWait
-  });
-  
-  console.log('[PDF] startOrWait debug:', {
-    'session.startOrWait': !!session?.startOrWait,
-    'session["starten-oder-warten"]': !!session?.['starten-oder-warten'],
-    'inlineTools.startOrWait': !!inlineTools?.startOrWait,
-    'fallback.startOrWait': !!fallback?.startOrWait,
-    'merged.startOrWait': !!merged.startOrWait,
-    'session keys': Object.keys(session || {}),
-    'startOrWait data': merged.startOrWait
   });
   
   // Build each section separately and log present flags
@@ -735,17 +725,6 @@ async function buildPdfDto(sessionRaw, options = {}) {
     chartImage: ivRechnerChartImage
   };
   const W = merged.startOrWait || {};
-  console.log('[PDF] startOrWaitSec debug:', {
-    'W object': W,
-    'W.initial': W.initial,
-    'W.monthly': W.monthly,
-    'W.rate': W.rate,
-    'W.years': W.years,
-    'W.waitYears': W.waitYears,
-    'W.chartData': W.chartData,
-    'W.totals': W.totals
-  });
-  
   const startOrWaitSec = {
     present: !!(W.initial || W.monthly || W.rate || W.years || W.waitYears || (Array.isArray(W.chartData) && W.chartData.length)),
     title: 'Starten oder warten',

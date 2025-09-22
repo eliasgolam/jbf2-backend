@@ -159,6 +159,22 @@ async function loadToolsForCustomer(kundenId) {
       };
     }
 
+    // Start or Wait (Starten oder warten)
+    if (toolDaten['starten-oder-warten'] || toolDaten.startOrWait) {
+      const sow = toolDaten['starten-oder-warten'] || toolDaten.startOrWait;
+      fallback.startOrWait = {
+        initial: Number(sow.initial) || 0,
+        monthly: Number(sow.monthly) || 0,
+        rate: Number(sow.rate) || 0,
+        years: Number(sow.years) || 0,
+        waitYears: Number(sow.waitYears) || 0,
+        interval: sow.interval || 'monatlich',
+        mode: sow.mode || 'vorschüssig',
+        totals: sow.totals || {},
+        chartData: Array.isArray(sow.chartData) ? sow.chartData : []
+      };
+    }
+
     console.log('[TOOL-LOADER] Fallback-Daten erstellt:', Object.keys(fallback));
     return fallback;
 
