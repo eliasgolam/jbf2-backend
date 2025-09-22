@@ -7,6 +7,7 @@ const { buildSavingsChart } = require('./charts/savingsChart');
 const { buildInterestCompareChart } = require('./charts/interestCompareChart');
 const { buildRetirementChart } = require('./charts/retirementChart');
 const { buildVorsorgerechnerChart } = require('./charts/vorsorgerechnerChart');
+const { buildIVRechnerChart } = require('./charts/ivRechnerChart');
 const { loadToolsForCustomer } = require('../services/toolLoader');
 
 // Helper functions for robust data handling
@@ -591,6 +592,123 @@ async function buildPdfDto(sessionRaw, options = {}) {
     chartData: Array.isArray(V.chartData) ? V.chartData : [],
     chartImage: vorsorgerechnerChartImage
   };
+
+  // IVRechner section (Invaliditätsrechner)
+  const IV = merged.health || {};
+  let ivRechnerChartImage;
+  try {
+    if (IV.bruttoLohn && IV.benoetigtesEinkommen) {
+      // Berechne die Werte wie im Frontend
+      const brutto = safe(IV.bruttoLohn);
+      const benoetigt = safe(IV.benoetigtesEinkommen);
+      
+      // AHV-Rente berechnen (vereinfacht)
+      const ahvRente = brutto <= 15120 ? 1260 * 12 : 
+                      brutto <= 16632 ? 1293 * 12 :
+                      brutto <= 18144 ? 1326 * 12 :
+                      brutto <= 19656 ? 1358 * 12 :
+                      brutto <= 21168 ? 1391 * 12 :
+                      brutto <= 22680 ? 1424 * 12 :
+                      brutto <= 24192 ? 1457 * 12 :
+                      brutto <= 25704 ? 1489 * 12 :
+                      brutto <= 27216 ? 1522 * 12 :
+                      brutto <= 28728 ? 1555 * 12 :
+                      brutto <= 30240 ? 1588 * 12 :
+                      brutto <= 31752 ? 1620 * 12 :
+                      brutto <= 33264 ? 1653 * 12 :
+                      brutto <= 34776 ? 1686 * 12 :
+                      brutto <= 36288 ? 1719 * 12 :
+                      brutto <= 37800 ? 1751 * 12 :
+                      brutto <= 39312 ? 1784 * 12 :
+                      brutto <= 40824 ? 1817 * 12 :
+                      brutto <= 42336 ? 1850 * 12 :
+                      brutto <= 43848 ? 1882 * 12 :
+                      brutto <= 45360 ? 1915 * 12 :
+                      brutto <= 46872 ? 1935 * 12 :
+                      brutto <= 48384 ? 1956 * 12 :
+                      brutto <= 49896 ? 1976 * 12 :
+                      brutto <= 51408 ? 1996 * 12 :
+                      brutto <= 52920 ? 2016 * 12 :
+                      brutto <= 54432 ? 2036 * 12 :
+                      brutto <= 55944 ? 2056 * 12 :
+                      brutto <= 57456 ? 2076 * 12 :
+                      brutto <= 58968 ? 2097 * 12 :
+                      brutto <= 60480 ? 2117 * 12 :
+                      brutto <= 61992 ? 2137 * 12 :
+                      brutto <= 63404 ? 2157 * 12 :
+                      brutto <= 64916 ? 2177 * 12 :
+                      brutto <= 66428 ? 2197 * 12 :
+                      brutto <= 67940 ? 2218 * 12 :
+                      brutto <= 69452 ? 2238 * 12 :
+                      brutto <= 70964 ? 2258 * 12 :
+                      brutto <= 72476 ? 2278 * 12 :
+                      brutto <= 73988 ? 2298 * 12 :
+                      brutto <= 75500 ? 2318 * 12 :
+                      brutto <= 77012 ? 2339 * 12 :
+                      brutto <= 78524 ? 2359 * 12 :
+                      brutto <= 80036 ? 2379 * 12 :
+                      brutto <= 81548 ? 2399 * 12 :
+                      brutto <= 83060 ? 2419 * 12 :
+                      brutto <= 84572 ? 2439 * 12 :
+                      brutto <= 86084 ? 2460 * 12 :
+                      brutto <= 87596 ? 2480 * 12 :
+                      brutto <= 89108 ? 2500 * 12 :
+                      2500 * 12; // Maximalwert
+      
+      const bvgRente = safe(IV.bvgRente) || 0;
+      const gesamtRente = ahvRente + bvgRente;
+      const luecke = Math.max(benoetigt - gesamtRente, 0);
+      
+      // UVG-Berechnung
+      const maxUVGLohn = 148200;
+      const uvgBasis = Math.min(brutto, maxUVGLohn);
+      const uvgBrutto90 = uvgBasis * 0.9;
+      const uvgRente = uvgBrutto90 - ahvRente;
+      const lueckeUnfall = Math.max(benoetigt - (ahvRente + uvgRente), 0);
+      
+      const eintrittsalter = safe(IV.eintrittsalter) || 45;
+      const jahreBisRente = 65 - eintrittsalter;
+      
+      const chartData = [
+        {
+          name: 'Krankheit',
+          rente: gesamtRente,
+          luecke: luecke
+        },
+        {
+          name: 'Unfall',
+          rente: ahvRente + uvgRente,
+          luecke: lueckeUnfall
+        }
+      ];
+      
+      ivRechnerChartImage = await buildIVRechnerChart(chartData, benoetigt);
+    }
+  } catch (e) {
+    console.warn('[PDF DTO][ivRechner] chart image build failed:', e.message);
+  }
+
+  const ivRechnerSec = {
+    present: !!(IV.bruttoLohn || IV.benoetigtesEinkommen || IV.versicherterLohn || IV.pensionskassenKapital),
+    title: 'Invaliditätsrechner',
+    keyFigures: {
+      name: IV.name || '',
+      vorname: IV.vorname || '',
+      geburtsdatum: IV.geburtsdatum || '',
+      zivilstand: IV.zivilstand || '',
+      kinder: safe(IV.kinder || 0),
+      bruttoLohn: safe(IV.bruttoLohn),
+      versicherterLohn: safe(IV.versicherterLohn),
+      pensionskassenKapital: safe(IV.pensionskassenKapital),
+      benoetigtesEinkommen: safe(IV.benoetigtesEinkommen),
+      bvgRente: safe(IV.bvgRente),
+      lohnzuwachs: safe(IV.lohnzuwachs),
+      eintrittsalter: safe(IV.eintrittsalter),
+      jahreBisRente: safe(65 - (IV.eintrittsalter || 45))
+    },
+    chartData: [],
+    chartImage: ivRechnerChartImage
+  };
   const W = merged.startOrWait || {};
   const startOrWaitSec = {
     present: !!(W.initial || W.monthly || W.rate || W.years || W.waitYears || (Array.isArray(W.chartData) && W.chartData.length)),
@@ -657,6 +775,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   pensionSec.present = pensionSec.present && allow('pension');
   retirementSec.present = retirementSec.present && allow('retirementPension');
   vorsorgerechnerSec.present = vorsorgerechnerSec.present && allow('vorsorgerechner');
+  ivRechnerSec.present = ivRechnerSec.present && allow('ivRechner');
   healthSec.present = healthSec.present && allow('health');
   propertySec.present = propertySec.present && allow('property');
   childrenSec.present = childrenSec.present && allow('children');
@@ -669,6 +788,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     'startOrWait.present': startOrWaitSec?.present,
     'retirementPension.present': retirementSec?.present,
     'vorsorgerechner.present': vorsorgerechnerSec?.present,
+    'ivRechner.present': ivRechnerSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
@@ -695,6 +815,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       startOrWait: startOrWaitSec,
       retirementPension: retirementSec,
       vorsorgerechner: vorsorgerechnerSec,
+      ivRechner: ivRechnerSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,

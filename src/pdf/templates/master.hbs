@@ -297,6 +297,30 @@
   <div class="page-break"></div>
 {{/if}}
 
+{{#if sections.ivRechner.present}}
+  <div class="section">
+    <h2 class="section-title">Invaliditätsrechner</h2>
+    <div class="key-figures">
+      <div class="key-figure"><div class="key-figure-label">Name</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.vorname}} {{sections.ivRechner.keyFigures.name}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Geburtsdatum</div><div class="key-figure-value">{{formatDate sections.ivRechner.keyFigures.geburtsdatum}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Zivilstand</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.zivilstand}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Kinder</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.kinder}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Bruttolohn</div><div class="key-figure-value">{{formatCurrency sections.ivRechner.keyFigures.bruttoLohn}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Versicherter Lohn</div><div class="key-figure-value">{{formatCurrency sections.ivRechner.keyFigures.versicherterLohn}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Pensionskassenkapital</div><div class="key-figure-value">{{formatCurrency sections.ivRechner.keyFigures.pensionskassenKapital}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Benötigtes Einkommen</div><div class="key-figure-value">{{formatCurrency sections.ivRechner.keyFigures.benoetigtesEinkommen}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">BVG-Rente</div><div class="key-figure-value">{{formatCurrency sections.ivRechner.keyFigures.bvgRente}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Lohnzuwachs p.a.</div><div class="key-figure-value">{{formatPercentage sections.ivRechner.keyFigures.lohnzuwachs}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Eintrittsalter</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.eintrittsalter}} Jahre</div></div>
+      <div class="key-figure"><div class="key-figure-label">Jahre bis 65</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.jahreBisRente}} Jahre</div></div>
+    </div>
+    {{#if sections.ivRechner.chartImage}}
+      <img src="{{sections.ivRechner.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
+    {{/if}}
+  </div>
+  <div class="page-break"></div>
+{{/if}}
+
 {{#if sections.pension.present}}
 {{> pension sections.pension}}
 {{/if}}
