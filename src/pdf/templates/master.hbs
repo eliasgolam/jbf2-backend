@@ -260,6 +260,43 @@
   <div class="page-break"></div>
 {{/if}}
 
+{{#if sections.vorsorgerechner.present}}
+  <div class="section">
+    <h2 class="section-title">Vorsorgerechner</h2>
+    <div class="key-figures">
+      <div class="key-figure"><div class="key-figure-label">Pensionslücke (Monatlich)</div><div class="key-figure-value">{{formatCurrency sections.vorsorgerechner.keyFigures.pensionsluecke}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Entnahmezeitraum</div><div class="key-figure-value">{{sections.vorsorgerechner.keyFigures.entnahmezeitraum}} Jahre</div></div>
+      <div class="key-figure"><div class="key-figure-label">Pensionsantritt</div><div class="key-figure-value">{{formatDate sections.vorsorgerechner.keyFigures.pensionsantritt}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Entnahme starten am</div><div class="key-figure-value">{{formatDate sections.vorsorgerechner.keyFigures.startdatum}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Zinssatz Sparphase</div><div class="key-figure-value">{{formatPercentage sections.vorsorgerechner.keyFigures.zinsSparen}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Zinssatz Entnahmephase</div><div class="key-figure-value">{{formatPercentage sections.vorsorgerechner.keyFigures.zinsEntnahme}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Anfangskapital</div><div class="key-figure-value">{{formatCurrency sections.vorsorgerechner.keyFigures.anfangskapital}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Benötigte Sparrate (Monatlich)</div><div class="key-figure-value">{{formatCurrency sections.vorsorgerechner.keyFigures.sparrate}}</div></div>
+      <div class="key-figure"><div class="key-figure-label">Benötigtes Kapital</div><div class="key-figure-value">{{formatCurrency sections.vorsorgerechner.keyFigures.benoetigtesKapital}}</div></div>
+    </div>
+    {{#if sections.vorsorgerechner.chartImage}}
+      <img src="{{sections.vorsorgerechner.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
+    {{/if}}
+    {{#if sections.vorsorgerechner.chartData}}
+      <table class="table">
+        <thead>
+          <tr><th>Jahr</th><th>Sparphase</th><th>Entnahmephase</th></tr>
+        </thead>
+        <tbody>
+          {{#each sections.vorsorgerechner.chartData}}
+            <tr>
+              <td>{{this.jahr}}</td>
+              <td class="currency">{{formatCurrency this.sparen}}</td>
+              <td class="currency">{{formatCurrency this.entnehmen}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+  </div>
+  <div class="page-break"></div>
+{{/if}}
+
 {{#if sections.pension.present}}
 {{> pension sections.pension}}
 {{/if}}

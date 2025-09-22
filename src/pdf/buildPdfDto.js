@@ -6,6 +6,7 @@
 const { buildSavingsChart } = require('./charts/savingsChart');
 const { buildInterestCompareChart } = require('./charts/interestCompareChart');
 const { buildRetirementChart } = require('./charts/retirementChart');
+const { buildVorsorgerechnerChart } = require('./charts/vorsorgerechnerChart');
 const { loadToolsForCustomer } = require('../services/toolLoader');
 
 // Helper functions for robust data handling
@@ -560,6 +561,36 @@ async function buildPdfDto(sessionRaw, options = {}) {
     chartData: Array.isArray(R.chartData) ? R.chartData : [],
     chartImage: retirementChartImage
   };
+
+  // Vorsorgerechner section
+  const V = merged.pension || {};
+  let vorsorgerechnerChartImage;
+  try {
+    if (Array.isArray(V.chartData) && V.chartData.length > 0) {
+      vorsorgerechnerChartImage = await buildVorsorgerechnerChart(V.chartData);
+    }
+  } catch (e) {
+    console.warn('[PDF DTO][vorsorgerechner] chart image build failed:', e.message);
+  }
+
+  const vorsorgerechnerSec = {
+    present: !!(V.pensionsluecke || V.entnahmezeitraum || V.sparrate || (Array.isArray(V.chartData) && V.chartData.length)),
+    title: 'Vorsorgerechner',
+    keyFigures: {
+      pensionsluecke: safe(V.pensionsluecke),
+      entnahmezeitraum: safe(V.entnahmezeitraum),
+      pensionsantritt: V.pensionsantritt || '',
+      startdatum: V.startdatum || '',
+      zinsEntnahme: safe(V.zinsEntnahme),
+      zinsSparen: safe(V.zinsSparen),
+      anfangskapital: safe(V.anfangskapital),
+      sparrate: safe(V.sparrate),
+      benoetigtesKapital: safe(V.pensionsluecke * V.entnahmezeitraum * 12),
+      monatlicheEntnahme: safe(V.pensionsluecke)
+    },
+    chartData: Array.isArray(V.chartData) ? V.chartData : [],
+    chartImage: vorsorgerechnerChartImage
+  };
   const W = merged.startOrWait || {};
   const startOrWaitSec = {
     present: !!(W.initial || W.monthly || W.rate || W.years || W.waitYears || (Array.isArray(W.chartData) && W.chartData.length)),
@@ -625,6 +656,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
   startOrWaitSec.present = startOrWaitSec.present && allow('startOrWait');
   pensionSec.present = pensionSec.present && allow('pension');
   retirementSec.present = retirementSec.present && allow('retirementPension');
+  vorsorgerechnerSec.present = vorsorgerechnerSec.present && allow('vorsorgerechner');
   healthSec.present = healthSec.present && allow('health');
   propertySec.present = propertySec.present && allow('property');
   childrenSec.present = childrenSec.present && allow('children');
@@ -636,6 +668,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     'interestCompare.present': zinsSec?.present,
     'startOrWait.present': startOrWaitSec?.present,
     'retirementPension.present': retirementSec?.present,
+    'vorsorgerechner.present': vorsorgerechnerSec?.present,
     'health.present': healthSec?.present,
     'property.present': propertySec?.present,
     'children.present': childrenSec?.present
@@ -661,6 +694,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       interestCompare: zinsSec,
       startOrWait: startOrWaitSec,
       retirementPension: retirementSec,
+      vorsorgerechner: vorsorgerechnerSec,
       pension: pensionSec,
       health: healthSec,
       property: propertySec,

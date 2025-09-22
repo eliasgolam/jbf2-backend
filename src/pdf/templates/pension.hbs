@@ -54,6 +54,54 @@
   </div>
 {{/if}}
 
+{{#if keyFigures.pensionsluecke}}
+  <div class="kf">
+    <div class="key-figure-label">Pensionslücke (Monatlich)</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.pensionsluecke}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.entnahmezeitraum}}
+  <div class="kf">
+    <div class="key-figure-label">Entnahmezeitraum</div>
+    <div class="key-figure-value">{{keyFigures.entnahmezeitraum}} Jahre</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.sparrate}}
+  <div class="kf">
+    <div class="key-figure-label">Benötigte Sparrate (Monatlich)</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.sparrate}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.benoetigtesKapital}}
+  <div class="kf">
+    <div class="key-figure-label">Benötigtes Kapital</div>
+    <div class="key-figure-value">{{formatCurrency keyFigures.benoetigtesKapital}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.zinsSparen}}
+  <div class="kf">
+    <div class="key-figure-label">Zinssatz Sparphase</div>
+    <div class="key-figure-value">{{formatPercentage keyFigures.zinsSparen}}</div>
+  </div>
+{{/if}}
+
+{{#if keyFigures.zinsEntnahme}}
+  <div class="kf">
+    <div class="key-figure-label">Zinssatz Entnahmephase</div>
+    <div class="key-figure-value">{{formatPercentage keyFigures.zinsEntnahme}}</div>
+  </div>
+{{/if}}
+
+{{#if chartImage}}
+  <div class="chart-container">
+    <img src="{{chartImage}}" alt="Vorsorgerechner Chart" class="chart-image" />
+  </div>
+{{/if}}
+
 {{#if notes}}
 {{notes}}
 {{/if}}
