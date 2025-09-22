@@ -14,6 +14,7 @@ const keyMap = {
   pension: 'pension',
   gesundheit: 'health',
   health: 'health',
+  ivrechner: 'health',
   immobilien: 'property',
   property: 'property',
   kinder: 'children',

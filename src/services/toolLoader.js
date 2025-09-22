@@ -105,10 +105,34 @@ async function loadToolsForCustomer(kundenId) {
       };
     }
 
-    // Health
+    // Health (including IV-Rechner)
     if (toolDaten.health || toolDaten.gesundheit || toolDaten.ivrechner || toolDaten.krankenkasse) {
       const health = toolDaten.health || toolDaten.gesundheit || toolDaten.ivrechner || toolDaten.krankenkasse;
       fallback.health = {
+        // IV-Rechner spezifische Daten
+        name: health.name || '',
+        vorname: health.vorname || '',
+        geburtsdatum: health.geburtsdatum || '',
+        zivilstand: health.zivilstand || '',
+        kinder: health.kinder || 0,
+        bruttoLohn: health.bruttoLohn || 0,
+        versicherterLohn: health.versicherterLohn || 0,
+        pensionskassenKapital: health.pensionskassenKapital || 0,
+        benoetigtesEinkommen: health.benoetigtesEinkommen || 0,
+        bvgRente: health.bvgRente || 0,
+        lohnzuwachs: health.lohnzuwachs || 0,
+        eintrittsalter: health.eintrittsalter || 45,
+        // Berechnungsergebnisse
+        ahvRente: health.ahvRente || 0,
+        gesamtRente: health.gesamtRente || 0,
+        luecke: health.luecke || 0,
+        uvgRente: health.uvgRente || 0,
+        lueckeUnfall: health.lueckeUnfall || 0,
+        lueckeMaximal: health.lueckeMaximal || 0,
+        gesamtluecke: health.gesamtluecke || 0,
+        prognoseEinkommen: health.prognoseEinkommen || 0,
+        chartData: Array.isArray(health.chartData) ? health.chartData : [],
+        // Krankenkasse spezifische Daten (Fallback)
         praemie: health.praemie || health.premium || 0,
         franchise: health.franchise || 0,
         selbstbehalt: health.selbstbehalt || health.deductible || 0,
