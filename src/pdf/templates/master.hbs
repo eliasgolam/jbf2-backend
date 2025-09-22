@@ -314,9 +314,25 @@
       <div class="key-figure"><div class="key-figure-label">Eintrittsalter</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.eintrittsalter}} Jahre</div></div>
       <div class="key-figure"><div class="key-figure-label">Jahre bis 65</div><div class="key-figure-value">{{sections.ivRechner.keyFigures.jahreBisRente}} Jahre</div></div>
     </div>
-    {{#if sections.ivRechner.chartImage}}
-      <img src="{{sections.ivRechner.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
-    {{/if}}
+            {{#if sections.ivRechner.chartImage}}
+              <img src="{{sections.ivRechner.chartImage}}" style="width:100%; height:auto; margin-top:10px;" />
+            {{/if}}
+            {{#if sections.ivRechner.chartData}}
+              <table class="table">
+                <thead>
+                  <tr><th>Art</th><th>Rente</th><th>Lücke</th></tr>
+                </thead>
+                <tbody>
+                  {{#each sections.ivRechner.chartData}}
+                    <tr>
+                      <td>{{this.name}}</td>
+                      <td class="currency">{{formatCurrency this.rente}}</td>
+                      <td class="currency">{{formatCurrency this.luecke}}</td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            {{/if}}
   </div>
   <div class="page-break"></div>
 {{/if}}

@@ -357,9 +357,19 @@ async function buildPdfDto(sessionRaw, options = {}) {
   }
   // prefer3: a > b > c
   function prefer3(a, b, c) {
+    const has = (o) => o && Object.keys(o).length > 0;
     if (has(a)) return a;
     if (has(b)) return b;
     if (has(c)) return c;
+    return null;
+  }
+  // prefer4: a > b > c > d
+  function prefer4(a, b, c, d) {
+    const has = (o) => o && Object.keys(o).length > 0;
+    if (has(a)) return a;
+    if (has(b)) return b;
+    if (has(c)) return c;
+    if (has(d)) return d;
     return null;
   }
   const inlineTools = options?.tools || {};
@@ -367,7 +377,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
     budget: prefer(session?.budget, fallback.budget),
     savingsPlanner: prefer(session?.savingsPlanner, fallback.savings),
     interestCompare: prefer3(inlineTools.interestCompare, session?.interestCompare, fallback.interestCompare),
-    startOrWait: prefer3(inlineTools.startOrWait, session?.startOrWait, fallback.startOrWait),
+    startOrWait: prefer4(inlineTools.startOrWait, session?.startOrWait, session?.['starten-oder-warten'], fallback.startOrWait),
     retirementPension: prefer3(inlineTools.retirementPension, session?.retirementPension, fallback.retirementPension),
     pension: prefer(session?.pension, fallback.pension),
     health: prefer(session?.health, fallback.health),
@@ -597,8 +607,12 @@ async function buildPdfDto(sessionRaw, options = {}) {
   const IV = merged.health || {};
   let ivRechnerChartImage;
   try {
-    if (IV.bruttoLohn && IV.benoetigtesEinkommen) {
-      // Berechne die Werte wie im Frontend
+    // Verwende vorhandene Chart-Daten aus der Session, falls verfügbar
+    if (Array.isArray(IV.chartData) && IV.chartData.length > 0) {
+      const benoetigt = safe(IV.benoetigtesEinkommen) || 0;
+      ivRechnerChartImage = await buildIVRechnerChart(IV.chartData, benoetigt);
+    } else if (IV.bruttoLohn && IV.benoetigtesEinkommen) {
+      // Fallback: Berechne die Werte wie im Frontend
       const brutto = safe(IV.bruttoLohn);
       const benoetigt = safe(IV.benoetigtesEinkommen);
       
@@ -706,7 +720,7 @@ async function buildPdfDto(sessionRaw, options = {}) {
       eintrittsalter: safe(IV.eintrittsalter),
       jahreBisRente: safe(65 - (IV.eintrittsalter || 45))
     },
-    chartData: [],
+    chartData: Array.isArray(IV.chartData) ? IV.chartData : [],
     chartImage: ivRechnerChartImage
   };
   const W = merged.startOrWait || {};
